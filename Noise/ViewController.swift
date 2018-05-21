@@ -223,7 +223,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             backgroundLine.move(to: CGPoint(x: oval.currentPoint.x, y: 0))
             backgroundLine.addLine(to: CGPoint(x: oval.currentPoint.x, y: self.graphLayer.bounds.maxY))
             
-            backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.2).cgColor
+            backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
             backgroundLineLayer.path = backgroundLine.cgPath
             backgroundLineLayer.lineWidth = 1.0
 
