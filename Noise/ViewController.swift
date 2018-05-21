@@ -253,35 +253,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         timer.fire()
     }
     
-    func noise(size: CGSize, resolution: Int) -> UIImage? {
-        let width = Int(size.width)
-        let height = Int(size.width)
-        
-        UIGraphicsBeginImageContextWithOptions(size, true, 1)
-        let context = UIGraphicsGetCurrentContext()!
-        
-        var previousAlpha: Double! = Double(arc4random_uniform(10)) / 10.0
-        for w in stride(from: 0, through: width, by: resolution) {
-            for h in stride(from: 0, through: height, by: resolution) {
-                
-                if previousAlpha == 0.0 {
-                    previousAlpha = 1.0
-                }
-                
-                let randomAlpha = Double(arc4random_uniform(UInt32(previousAlpha * 10))) / 10.0
-                previousAlpha = randomAlpha
-                
-                let color = UIColor.init(white: 1.0, alpha: CGFloat(randomAlpha)).cgColor
-                
-                context.setFillColor(color)
-                context.fill(CGRect(x: w, y: h, width: resolution, height: resolution))
-            }
-        }
-        let outputImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return outputImage
-    }
-    
     @IBAction func settingsButtonPressed(_ sender: Any) {
         var isHidden = false
         
