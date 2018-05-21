@@ -26,7 +26,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var sampleTextField: UITextField! {
         didSet {
             sampleTextField.delegate = self
-            sampleTextField.text = "\(500)"
+            sampleTextField.text = "\(501)"
             sampleTextField.keyboardType = .numberPad
         }
     }
@@ -106,7 +106,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .black
         view.backgroundColor = .black
-        generateTerrain(samples: 500)
+        generateTerrain(samples: 501)
     }
     
     @objc func hideKeyboard() {
@@ -213,58 +213,31 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let max = graphLayer.bounds.minY
         let min = graphLayer.bounds.maxY
         
-        var previousY = CGFloat(arc4random_uniform(UInt32(min)))
-        var previousPoint: CGPoint?
-        
         self.scrollView.contentSize = CGSize(width: (CGFloat(samples) * spacing) + 107, height: self.scrollView.contentSize.height)
         
         var x = 0
-        var previousDirection = 1
+        
+        let noise = Noise()
+        noise.steepness = adjustment
+        noise.hillFactor = UInt32(self.hillFactorTextField.text ?? "\(10)")!
+        noise.spacing = self.spacing
+        
+        let points = noise.generate(samples: samples, maxHeight: max, minHeight: min)
+        
+        var previousPoint: CGPoint?
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { (timer) in
-            if x >= samples {
+            if x >= points.count - 1 {
                 DispatchQueue.main.async {
                     self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
                 }
                 timer.invalidate()
             }
-            self.sampleNumberLabel.text = "\(x)"
-
-            var newY = previousY
-  
-            if previousDirection == 0 {
-                //down = (+)
-                let down = CGFloat(Int.random(lower: UInt32(previousY), upper: UInt32(previousY) + arc4random_uniform(self.adjustment)))
-                newY = down
-                if down > min {
-                    newY = min
-                }
-            } else {
-                //up = (-)
-                let preUp = previousY - CGFloat(arc4random_uniform(self.adjustment))
-                if preUp < 0 {
-                    newY = 0
-                } else {
-                    let up = CGFloat(Int.random(lower:  UInt32(preUp), upper: UInt32(previousY)))
-                    newY = up
-                    if up < max {
-                        newY = max
-                    }
-                }
-            }
+            self.sampleNumberLabel.text = "\(x + 1)"
             
-            let randomDirection = arc4random_uniform(UInt32(self.hillFactorTextField.text ?? "\(10)")!)
-            if randomDirection == 0 {
-                if previousDirection == 0 {
-                    previousDirection = 1
-                } else {
-                    previousDirection = 0
-                }
-            }
+            let current = points[x]
             
-            previousY = newY
-            
-            let currentPoint = CGPoint(x: CGFloat(x) * self.spacing, y: self.graphLayer.bounds.maxY - (newY + self.ellipseHeight))
+            let currentPoint = CGPoint(x: current.x, y: self.graphLayer.bounds.maxY - (current.y + self.ellipseHeight))
             self.addGraphics(index: x, previousPoint: previousPoint, currentPoint: currentPoint)
             
             previousPoint = currentPoint
