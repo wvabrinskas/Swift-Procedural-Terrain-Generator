@@ -69,13 +69,32 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     let graphLayer = CAShapeLayer()
     lazy var height = self.view.frame.size.height * 0.7
+    
+    var adjustment:UInt32! {
+        get {
+           return UInt32(steepnessTextField.text ?? "\(30)")!
+        }
+    }
+    var spacing:CGFloat! {
+        get {
+            return CGFloat(UInt32(sharpnessTextField.text ?? "\(10)")!)
+        }
+    }
     var timer:Timer!
+    
+    let ellipseWidth:CGFloat = 1.0
+    let ellipseHeight:CGFloat = 1.0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         settingsTop.constant = -160.0
         self.view.addGestureRecognizer(UITapGestureRecognizer.init(target: self, action: #selector(hideKeyboard)))
+        
+        graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
+        graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
+        self.contentView.layer.addSublayer(graphLayer)
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -97,6 +116,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func clear() {
+        timer?.invalidate()
         self.graphLayer.sublayers?.forEach({ (layer) in
             layer.removeFromSuperlayer()
         })
@@ -105,7 +125,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 subview.removeFromSuperview()
             }
         }
-        self.graphLayer.removeFromSuperlayer()
     }
     
     func getColor(point: CGPoint) -> CGColor {
@@ -133,26 +152,71 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return UIColor.white.cgColor
     }
     
+    
+    func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
+        let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
+        
+        let line = UIBezierPath()
+        
+        if previousPoint != nil {
+            line.move(to: CGPoint(x: previousPoint!.x - (0.5 * self.ellipseWidth), y: previousPoint!.y))
+            line.addLine(to: CGPoint(x: currentPoint.x - (0.5 * self.ellipseWidth), y: currentPoint.y))
+        }
+        
+        let shapeLayer = CAShapeLayer()
+        let lineLayer = CAShapeLayer()
+        let backgroundLineLayer = CAShapeLayer()
+        
+        shapeLayer.fillColor = self.getColor(point: currentPoint)
+        shapeLayer.strokeColor = UIColor.clear.cgColor
+        shapeLayer.path = oval.cgPath
+        
+        lineLayer.strokeColor = self.getColor(point: currentPoint)
+        lineLayer.lineWidth = 5.0
+        lineLayer.path = line.cgPath
+        lineLayer.lineCap = kCALineCapRound
+        
+        let backgroundLine = UIBezierPath()
+        backgroundLine.move(to: CGPoint(x: currentPoint.x, y: 0))
+        backgroundLine.addLine(to: CGPoint(x: currentPoint.x, y: self.graphLayer.bounds.maxY))
+        
+        backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
+        backgroundLineLayer.path = backgroundLine.cgPath
+        backgroundLineLayer.lineWidth = 1.0
+        
+        if index == 0 || CGFloat(index).remainder(dividingBy: 10.0) == 0 {
+            backgroundLineLayer.lineWidth = 2.0
+            
+            let graphlabel = UILabel(frame: CGRect(x: currentPoint.x - (index == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
+            graphlabel.textAlignment = .center
+            graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
+            graphlabel.backgroundColor = .clear
+            graphlabel.font = UIFont.systemFont(ofSize: 10)
+            graphlabel.text = "\(index)"
+            self.contentView.addSubview(graphlabel)
+        }
+        
+        self.graphLayer.addSublayer(backgroundLineLayer)
+        self.graphLayer.addSublayer(lineLayer)
+        self.graphLayer.addSublayer(shapeLayer)
+        
+        if currentPoint.x >= self.view.frame.maxX - 107 {
+            self.graphLayer.frame.size = CGSize(width: self.graphLayer.frame.size.width + (self.view.frame.maxX - 107), height:  self.graphLayer.frame.size.height)
+            self.scrollView.setContentOffset(CGPoint(x: currentPoint.x - (self.view.frame.maxX - 107), y: 0), animated: true)
+        }
+        
+    }
+    
     func generateTerrain(samples: Int) {
         self.clear()
         
-        let ellipseWidth:CGFloat = 1.0
-        let ellipseHeight:CGFloat = 1.0
-
-        graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
-        graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
-
         let max = graphLayer.bounds.minY
         let min = graphLayer.bounds.maxY
         
         var previousY = CGFloat(arc4random_uniform(UInt32(min)))
-        var previousPoint: UIBezierPath?
-        
-        let adjustment:UInt32 = UInt32(steepnessTextField.text ?? "\(30)")!
-        let spacing:CGFloat = CGFloat(UInt32(sharpnessTextField.text ?? "\(10)")!)
+        var previousPoint: CGPoint?
         
         self.scrollView.contentSize = CGSize(width: (CGFloat(samples) * spacing) + 107, height: self.scrollView.contentSize.height)
-        self.contentView.layer.addSublayer(graphLayer)
         
         var x = 0
         var previousDirection = 1
@@ -162,7 +226,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 DispatchQueue.main.async {
                     self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
                 }
-
                 timer.invalidate()
             }
             self.sampleNumberLabel.text = "\(x)"
@@ -171,14 +234,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
   
             if previousDirection == 0 {
                 //down = (+)
-                let down = CGFloat(Int.random(lower: UInt32(previousY), upper: UInt32(previousY) + arc4random_uniform(adjustment)))
+                let down = CGFloat(Int.random(lower: UInt32(previousY), upper: UInt32(previousY) + arc4random_uniform(self.adjustment)))
                 newY = down
                 if down > min {
                     newY = min
                 }
             } else {
                 //up = (-)
-                let preUp = previousY - CGFloat(arc4random_uniform(adjustment))
+                let preUp = previousY - CGFloat(arc4random_uniform(self.adjustment))
                 if preUp < 0 {
                     newY = 0
                 } else {
@@ -199,60 +262,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
                 }
             }
             
-            let oval = UIBezierPath(ovalIn: CGRect(x: CGFloat(x) * spacing, y: self.graphLayer.bounds.maxY - (newY + ellipseHeight), width: ellipseWidth, height: ellipseHeight))
-            
             previousY = newY
             
-            let line = UIBezierPath()
+            let currentPoint = CGPoint(x: CGFloat(x) * self.spacing, y: self.graphLayer.bounds.maxY - (newY + self.ellipseHeight))
+            self.addGraphics(index: x, previousPoint: previousPoint, currentPoint: currentPoint)
+            
+            previousPoint = currentPoint
 
-            if previousPoint != nil {
-                line.move(to: CGPoint(x: previousPoint!.currentPoint.x - (0.5 * ellipseWidth), y: previousPoint!.currentPoint.y))
-                line.addLine(to: CGPoint(x: oval.currentPoint.x - (0.5 * ellipseWidth), y: oval.currentPoint.y))
-            }
-            previousPoint = oval
-            
-            let shapeLayer = CAShapeLayer()
-            let lineLayer = CAShapeLayer()
-            let backgroundLineLayer = CAShapeLayer()
-            
-            shapeLayer.fillColor = self.getColor(point: oval.currentPoint)
-            shapeLayer.strokeColor = UIColor.clear.cgColor
-            shapeLayer.path = oval.cgPath
-            
-            lineLayer.strokeColor = self.getColor(point: oval.currentPoint)
-            lineLayer.lineWidth = 5.0
-            lineLayer.path = line.cgPath
-            lineLayer.lineCap = kCALineCapRound
-            
-            let backgroundLine = UIBezierPath()
-            backgroundLine.move(to: CGPoint(x: oval.currentPoint.x, y: 0))
-            backgroundLine.addLine(to: CGPoint(x: oval.currentPoint.x, y: self.graphLayer.bounds.maxY))
-            
-            backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
-            backgroundLineLayer.path = backgroundLine.cgPath
-            backgroundLineLayer.lineWidth = 1.0
-
-            if x == 0 || CGFloat(x).remainder(dividingBy: 10.0) == 0 {
-                backgroundLineLayer.lineWidth = 2.0
-
-                let graphlabel = UILabel(frame: CGRect(x: oval.currentPoint.x - (x == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
-                graphlabel.textAlignment = .center
-                graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
-                graphlabel.backgroundColor = .clear
-                graphlabel.font = UIFont.systemFont(ofSize: 10)
-                graphlabel.text = "\(x)"
-                self.contentView.addSubview(graphlabel)
-            }
-            
-            self.graphLayer.addSublayer(backgroundLineLayer)
-            self.graphLayer.addSublayer(lineLayer)
-            self.graphLayer.addSublayer(shapeLayer)
-            
-            if oval.currentPoint.x >= self.view.frame.maxX - 107 {
-                self.graphLayer.frame.size = CGSize(width: self.graphLayer.frame.size.width + (self.view.frame.maxX - 107), height:  self.graphLayer.frame.size.height)
-                self.scrollView.setContentOffset(CGPoint(x: oval.currentPoint.x - (self.view.frame.maxX - 107), y: 0), animated: true)
-            }
-            
             x += 1
         }
         timer.fire()
@@ -290,5 +306,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        self.clear()
+    }
 }
 
