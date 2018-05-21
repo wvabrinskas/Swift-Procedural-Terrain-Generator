@@ -14,7 +14,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var sampleNumberLabel: UILabel!
-    
+
     @IBOutlet weak var settingsButton: UIButton! {
         didSet {
             settingsButton.imageView?.contentMode = .scaleAspectFit
@@ -60,6 +60,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
             settingsView.layer.shadowOffset = CGSize(width: 0.0, height: -4.0)
             settingsView.layer.shadowRadius = 10.0
             settingsView.layer.shadowOpacity = 0.8
+            settingsView.clipsToBounds = true
+            settingsView.layer.cornerRadius = 10.0
+            settingsView.alpha = 0.0
         }
     }
     
@@ -257,16 +260,20 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func settingsButtonPressed(_ sender: Any) {
-
+        var isHidden = false
+        
         if settingsTop.constant == 40.0 {
             settingsTop.constant = -160.0
+            isHidden = true
             settingsButton.setImage(#imageLiteral(resourceName: "Hamburger_icon.svg"), for: .normal)
         } else {
+            isHidden = false
             settingsTop.constant = 40.0
             settingsButton.setImage(#imageLiteral(resourceName: "delete-sign"), for: .normal)
         }
         
         UIView.animate(withDuration: 0.38, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.4, options: .curveEaseIn, animations: {
+            self.settingsView.alpha = isHidden ? 0.0 : 1.0
             self.view.layoutIfNeeded()
         }, completion: nil)
     }
