@@ -100,6 +100,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.graphLayer.sublayers?.forEach({ (layer) in
             layer.removeFromSuperlayer()
         })
+        self.contentView.subviews.forEach { (subview) in
+            if subview is UILabel {
+                subview.removeFromSuperview()
+            }
+        }
         self.graphLayer.removeFromSuperlayer()
     }
     
