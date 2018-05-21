@@ -116,6 +116,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func clear() {
+        self.sampleNumberLabel.text = "0"
+
         timer?.invalidate()
         self.graphLayer.sublayers?.forEach({ (layer) in
             layer.removeFromSuperlayer()
@@ -227,12 +229,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
         var previousPoint: CGPoint?
         
         timer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { (timer) in
+            if points.count == 0 {
+                timer.invalidate()
+                return
+            }
+            
             if x >= points.count - 1 {
                 DispatchQueue.main.async {
                     self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
                 }
                 timer.invalidate()
             }
+            
             self.sampleNumberLabel.text = "\(x + 1)"
             
             let current = points[x]
