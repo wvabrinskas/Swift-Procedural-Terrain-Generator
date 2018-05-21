@@ -199,6 +199,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             previousY = newY
             
             let line = UIBezierPath()
+
             if previousPoint != nil {
                 line.move(to: CGPoint(x: previousPoint!.currentPoint.x - (0.5 * ellipseWidth), y: previousPoint!.currentPoint.y))
                 line.addLine(to: CGPoint(x: oval.currentPoint.x - (0.5 * ellipseWidth), y: oval.currentPoint.y))
@@ -207,6 +208,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             let shapeLayer = CAShapeLayer()
             let lineLayer = CAShapeLayer()
+            let backgroundLineLayer = CAShapeLayer()
             
             shapeLayer.fillColor = self.getColor(point: oval.currentPoint)
             shapeLayer.strokeColor = UIColor.clear.cgColor
@@ -217,6 +219,27 @@ class ViewController: UIViewController, UITextFieldDelegate {
             lineLayer.path = line.cgPath
             lineLayer.lineCap = kCALineCapRound
             
+            let backgroundLine = UIBezierPath()
+            backgroundLine.move(to: CGPoint(x: oval.currentPoint.x, y: 0))
+            backgroundLine.addLine(to: CGPoint(x: oval.currentPoint.x, y: self.graphLayer.bounds.maxY))
+            
+            backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.2).cgColor
+            backgroundLineLayer.path = backgroundLine.cgPath
+            backgroundLineLayer.lineWidth = 1.0
+
+            if x == 0 || CGFloat(x).remainder(dividingBy: 10.0) == 0 {
+                backgroundLineLayer.lineWidth = 2.0
+
+                let graphlabel = UILabel(frame: CGRect(x: oval.currentPoint.x - (x == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
+                graphlabel.textAlignment = .center
+                graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
+                graphlabel.backgroundColor = .clear
+                graphlabel.font = UIFont.systemFont(ofSize: 10)
+                graphlabel.text = "\(x)"
+                self.contentView.addSubview(graphlabel)
+            }
+            
+            self.graphLayer.addSublayer(backgroundLineLayer)
             self.graphLayer.addSublayer(lineLayer)
             self.graphLayer.addSublayer(shapeLayer)
             
