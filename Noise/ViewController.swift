@@ -8,11 +8,6 @@
 
 import UIKit
 
-extension Int {
-    static func random(lower: UInt32, upper: UInt32) -> UInt32 {
-        return arc4random_uniform(upper - lower) + lower
-    }
-}
 
 class ViewController: UIViewController, UITextFieldDelegate {
     
@@ -70,14 +65,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     
     
     let graphLayer = CAShapeLayer()
-    var previousTerrainPoints = [TerrainKey : CGPoint]()
     lazy var height = self.view.frame.size.height * 0.7
     var timer:Timer!
 
-    enum TerrainKey {
-        case PreviousWater, PreviousLand, PreviousMountain, PreviousSnow
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -94,10 +84,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .black
         view.backgroundColor = .black
-        twoDNoise(samples: 500)
-//        Noise().generate(samples: 300, maxHeight: self.view.frame.minX, minHeight: self.view.frame.maxX).forEach { (values) in
-//            print(values)
-//        }
+        generateTerrain(samples: 500)
     }
     
     @objc func hideKeyboard() {
@@ -138,7 +125,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return UIColor.white.cgColor
     }
     
-    func twoDNoise(samples: Int) {
+    func generateTerrain(samples: Int) {
         self.clear()
         
         let ellipseWidth:CGFloat = 1.0
@@ -288,7 +275,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
        self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
         timer.invalidate()
         view.endEditing(true)
-        twoDNoise(samples: Int(sampleTextField.text ?? "\(500)")!)
+        generateTerrain(samples: Int(sampleTextField.text ?? "\(500)")!)
         settingsButtonPressed(self)
     }
     
