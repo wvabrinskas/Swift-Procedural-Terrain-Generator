@@ -7,6 +7,7 @@
 
 As of the creation of this repo, Swift Procedural Terrain Generator creates organic terrain with the Y-axis being procedurally generated. Will eventually be expanded to create a 2-dimensional terrain / noise map or 3-dimensional terrain. 
 
+[![Preview Video](http://img.youtube.com/vi/7B399xQ4YOg/0.jpg)](https://www.youtube.com/watch?v=7B399xQ4YOg "Preview Video")
 
 # Noise class usage
 - Add `Noise.swift` to your project. 
