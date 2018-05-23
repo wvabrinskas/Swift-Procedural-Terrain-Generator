@@ -159,11 +159,34 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return UIColor.white.cgColor
     }
     
+    private func addBackgroundLines(currentPoint: CGPoint, index: Int) {
+        let backgroundLineLayer = CAShapeLayer()
+
+        let backgroundLine = UIBezierPath()
+        backgroundLine.move(to: CGPoint(x: currentPoint.x, y: 0))
+        backgroundLine.addLine(to: CGPoint(x: currentPoint.x, y: self.graphLayer.bounds.maxY))
+        
+        backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
+        backgroundLineLayer.path = backgroundLine.cgPath
+        backgroundLineLayer.lineWidth = 1.0
+        
+        if index == 0 || CGFloat(index).remainder(dividingBy: 10.0) == 0 {
+            backgroundLineLayer.lineWidth = 2.0
+            
+            let graphlabel = UILabel(frame: CGRect(x: currentPoint.x - (index == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
+            graphlabel.textAlignment = .center
+            graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
+            graphlabel.backgroundColor = .clear
+            graphlabel.font = UIFont.systemFont(ofSize: 10)
+            graphlabel.text = "\(index)"
+            self.contentView.addSubview(graphlabel)
+        }
+        
+        self.graphLayer.insertSublayer(backgroundLineLayer, at: 0)
+    }
     
     func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
         let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
-        
-        var line = CGMutablePath()
         
         let shouldGetNewLine:Bool = {
             if previousColor == self.getColor(point: currentPoint) {
@@ -172,6 +195,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
             return true
         }()
         
+        self.addBackgroundLines(currentPoint: currentPoint, index: index)
+        
+        var line = CGMutablePath()
+
         if !shouldGetNewLine {
             line = previousLine
         }
@@ -200,34 +227,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         previousColor = self.getColor(point: currentPoint)
         previousLine = line
 
-        let backgroundLineLayer = CAShapeLayer()
         let shapeLayer = CAShapeLayer()
 
         shapeLayer.fillColor = self.getColor(point: currentPoint)
         shapeLayer.strokeColor = UIColor.clear.cgColor
         shapeLayer.path = oval.cgPath
-
-        let backgroundLine = UIBezierPath()
-        backgroundLine.move(to: CGPoint(x: currentPoint.x, y: 0))
-        backgroundLine.addLine(to: CGPoint(x: currentPoint.x, y: self.graphLayer.bounds.maxY))
         
-        backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
-        backgroundLineLayer.path = backgroundLine.cgPath
-        backgroundLineLayer.lineWidth = 1.0
-        
-        if index == 0 || CGFloat(index).remainder(dividingBy: 10.0) == 0 {
-            backgroundLineLayer.lineWidth = 2.0
-            
-            let graphlabel = UILabel(frame: CGRect(x: currentPoint.x - (index == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
-            graphlabel.textAlignment = .center
-            graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
-            graphlabel.backgroundColor = .clear
-            graphlabel.font = UIFont.systemFont(ofSize: 10)
-            graphlabel.text = "\(index)"
-            self.contentView.addSubview(graphlabel)
-        }
-        
-        self.graphLayer.addSublayer(backgroundLineLayer)
         self.graphLayer.addSublayer(shapeLayer)
         
         if currentPoint.x >= self.view.frame.maxX - 107 {
