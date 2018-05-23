@@ -71,4 +71,62 @@ class Noise {
         }
         return values
     }
+    
+    func twoD(rect: CGRect) {
+        var xPoints = [CGFloat]()
+        var pointCloud = [[CGFloat]]()
+
+        for _ in stride(from: 0, through: rect.size.width, by: self.spacing) {
+            xPoints.append(0.0)
+        }
+        for _ in stride(from: 0, through: rect.size.height, by: self.spacing) {
+            pointCloud.append(xPoints)
+        }
+        
+        var previousDirection = 1
+
+        for i in stride(from: 0, through: rect.size.width, by: self.spacing) {
+            for j in stride(from: 0, through: rect.size.height, by: self.spacing) {
+                
+                let x = Int(i - self.spacing) < 0 ? 0 : Int(i - self.spacing)
+                let y = Int(j - self.spacing) < 0 ? 0 : Int(j - self.spacing)
+                
+                if x > 0 && y > 0 {
+                    
+                    let top = pointCloud[x][y - 1]
+                    let left = pointCloud[x - 1][y]
+                    
+                    var upper = 10
+                    var lower = 0
+                    
+                    let average = (top * left) / 2.0
+                    
+                    if previousDirection == 1 {
+                        //up
+                        lower = Int(average)
+                    } else {
+                        //down
+                        upper = Int(average)
+                    }
+                    
+                    let alpha = CGFloat(Int.random(lower: UInt32(lower), upper: UInt32(upper))) / 10.0
+                    pointCloud[x][y] = alpha
+                    
+                } else {
+                    pointCloud[x][y] = CGFloat(arc4random_uniform(10)) / 10.0
+                }
+                
+                let randomDirection = arc4random_uniform(hillFactor)
+                if randomDirection == 0 {
+                    if previousDirection == 0 {
+                        previousDirection = 1
+                    } else {
+                        previousDirection = 0
+                    }
+                }
+                print(pointCloud[x][y])
+            }
+        }
+    
+    }
 }

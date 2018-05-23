@@ -111,7 +111,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .black
         view.backgroundColor = .black
-        generateTerrain(samples: 501)
+        //generateTerrain(samples: 501)
+        Noise().twoD(rect: self.view.frame)
     }
     
     @objc func hideKeyboard() {
@@ -120,7 +121,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    func clear() {
+    private func clear() {
         self.sampleNumberLabel.text = "0"
 
         timer?.invalidate()
@@ -134,13 +135,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    func getColor(point: CGPoint) -> CGColor {
+    private func getColor(point: CGPoint) -> CGColor {
         
         let terrainColors:[CGFloat : CGColor] = [
                              0.2 : UIColor.white.cgColor,
                              0.5 : UIColor.lightGray.cgColor,
                              0.7 : UIColor(red: 179.0/255.0, green: 114.0/255.0, blue: 25.0/255.0, alpha: 1.0).cgColor,
-                             0.85 : UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0).cgColor,
+                             0.85: UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0).cgColor,
                              0.9 : UIColor(red: 67.0/255.0, green: 180.0/255.0, blue: 212.0/255.0, alpha: 1.0).cgColor,
                              1.0 : UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0).cgColor
                             ]
@@ -185,8 +186,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.graphLayer.insertSublayer(backgroundLineLayer, at: 0)
     }
     
-    func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
-        let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
+    private func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
         
         let shouldGetNewLine:Bool = {
             if previousColor == self.getColor(point: currentPoint) {
@@ -208,11 +208,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             line.addLine(to: CGPoint(x: currentPoint.x - (0.5 * self.ellipseWidth), y: currentPoint.y))
         }
         
-        var lineLayer = CAShapeLayer()
-        
-        if !shouldGetNewLine {
-            lineLayer = previousLineLayer
-        }
+        let lineLayer = !shouldGetNewLine ? previousLineLayer! : CAShapeLayer()
 
         lineLayer.lineWidth = 5.0
         lineLayer.lineCap = kCALineCapRound
@@ -227,13 +223,14 @@ class ViewController: UIViewController, UITextFieldDelegate {
         previousColor = self.getColor(point: currentPoint)
         previousLine = line
 
-        let shapeLayer = CAShapeLayer()
+        let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
+        let ovalLayer = CAShapeLayer()
 
-        shapeLayer.fillColor = self.getColor(point: currentPoint)
-        shapeLayer.strokeColor = UIColor.clear.cgColor
-        shapeLayer.path = oval.cgPath
+        ovalLayer.fillColor = self.getColor(point: currentPoint)
+        ovalLayer.strokeColor = UIColor.clear.cgColor
+        ovalLayer.path = oval.cgPath
         
-        self.graphLayer.addSublayer(shapeLayer)
+        self.graphLayer.addSublayer(ovalLayer)
         
         if currentPoint.x >= self.view.frame.maxX - 107 {
             self.graphLayer.frame.size = CGSize(width: self.graphLayer.frame.size.width + (self.view.frame.maxX - 107), height:  self.graphLayer.frame.size.height)
@@ -242,7 +239,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func generateTerrain(samples: Int) {
+    private func generateTerrain(samples: Int) {
         self.clear()
         
         let max = graphLayer.bounds.minY
