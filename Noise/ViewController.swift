@@ -112,7 +112,26 @@ class ViewController: UIViewController, UITextFieldDelegate {
         contentView.backgroundColor = .black
         view.backgroundColor = .black
         //generateTerrain(samples: 501)
-        Noise().twoD(rect: self.view.frame)
+        
+        let noise = Noise()
+        noise.spacing = 5.0
+        let alphas = noise.twoD(rect: graphLayer.frame)
+        
+        for x in 0..<alphas.count {
+            for y in 0..<alphas[x].count {
+                print(x)
+                let shape = CGPath(rect: CGRect(x: CGFloat(y) * noise.spacing, y: CGFloat(x) * noise.spacing, width: noise.spacing, height: noise.spacing), transform: nil)
+                let ovalLayer = CAShapeLayer()
+                
+                let alpha = alphas[x][y]
+                
+                ovalLayer.fillColor = UIColor(white: 1.0, alpha: alpha).cgColor
+                ovalLayer.strokeColor = UIColor.clear.cgColor
+                ovalLayer.path = shape
+                
+                self.graphLayer.addSublayer(ovalLayer)
+            }
+        }
     }
     
     @objc func hideKeyboard() {
