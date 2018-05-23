@@ -66,25 +66,30 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    private lazy var height = self.view.frame.size.height * 0.7
     
-    let graphLayer = CAShapeLayer()
-    lazy var height = self.view.frame.size.height * 0.7
-    
-    var adjustment:UInt32! {
+    private var adjustment:UInt32! {
         get {
            return UInt32(steepnessTextField.text ?? "\(30)")!
         }
     }
-    var spacing:CGFloat! {
+    private var spacing:CGFloat! {
         get {
             return CGFloat(UInt32(sharpnessTextField.text ?? "\(10)")!)
         }
     }
-    var timer:Timer!
     
-    let ellipseWidth:CGFloat = 1.0
-    let ellipseHeight:CGFloat = 1.0
+    private var timer:Timer!
+    
+    private let ellipseWidth:CGFloat = 1.0
+    private let ellipseHeight:CGFloat = 1.0
+    
+    private let graphLayer = CAShapeLayer()
 
+    private var previousLine: CGMutablePath!
+    private var previousLineLayer: CAShapeLayer!
+    private var previousColor: CGColor!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -158,26 +163,50 @@ class ViewController: UIViewController, UITextFieldDelegate {
     func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
         let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
         
-        let line = UIBezierPath()
+        var line = CGMutablePath()
+        
+        let shouldGetNewLine:Bool = {
+            if previousColor == self.getColor(point: currentPoint) {
+                return false
+            }
+            return true
+        }()
+        
+        if !shouldGetNewLine {
+            line = previousLine
+        }
         
         if previousPoint != nil {
             line.move(to: CGPoint(x: previousPoint!.x - (0.5 * self.ellipseWidth), y: previousPoint!.y))
             line.addLine(to: CGPoint(x: currentPoint.x - (0.5 * self.ellipseWidth), y: currentPoint.y))
         }
         
-        let shapeLayer = CAShapeLayer()
-        let lineLayer = CAShapeLayer()
-        let backgroundLineLayer = CAShapeLayer()
+        var lineLayer = CAShapeLayer()
         
+        if !shouldGetNewLine {
+            lineLayer = previousLineLayer
+        }
+
+        lineLayer.lineWidth = 5.0
+        lineLayer.lineCap = kCALineCapRound
+        lineLayer.strokeColor = self.getColor(point: currentPoint)
+        lineLayer.path = line
+        
+        if shouldGetNewLine {
+            self.graphLayer.addSublayer(lineLayer)
+        }
+        
+        previousLineLayer = lineLayer
+        previousColor = self.getColor(point: currentPoint)
+        previousLine = line
+
+        let backgroundLineLayer = CAShapeLayer()
+        let shapeLayer = CAShapeLayer()
+
         shapeLayer.fillColor = self.getColor(point: currentPoint)
         shapeLayer.strokeColor = UIColor.clear.cgColor
         shapeLayer.path = oval.cgPath
-        
-        lineLayer.strokeColor = self.getColor(point: currentPoint)
-        lineLayer.lineWidth = 5.0
-        lineLayer.path = line.cgPath
-        lineLayer.lineCap = kCALineCapRound
-        
+
         let backgroundLine = UIBezierPath()
         backgroundLine.move(to: CGPoint(x: currentPoint.x, y: 0))
         backgroundLine.addLine(to: CGPoint(x: currentPoint.x, y: self.graphLayer.bounds.maxY))
@@ -199,7 +228,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         
         self.graphLayer.addSublayer(backgroundLineLayer)
-        self.graphLayer.addSublayer(lineLayer)
         self.graphLayer.addSublayer(shapeLayer)
         
         if currentPoint.x >= self.view.frame.maxX - 107 {
