@@ -80,56 +80,12 @@ class Noise {
         let xCount = Int(rect.size.width / self.spacing)
         let yCount = Int(rect.size.height / self.spacing)
     
-        var pointCloud = [[CGFloat]]()
+        var pointCloud:[[CGFloat]] = Array(repeating: Array(repeating: 0.0, count: xCount), count: yCount)
         
         let steep:CGFloat = 2.0
-
-        var xArray = [CGFloat]()
-        var previousX = random()
-        var previousXDirection = 1
-        
-        func fillXArray() {
-            xArray.removeAll()
-            for _ in 0..<xCount {
-                
-                var newAlpha = previousX
-                
-                var alpha:CGFloat = 0.0
-                //print("top: \(top), left: \(left)")
-                if previousXDirection == 1 {
-                    //up average -> average + steepness
-                    alpha = CGFloat(Int.random(lower: UInt32(previousX), upper: UInt32(previousX + steep))) / 10.0
-                } else {
-                    //down average - steepness -> average
-                    var lower = previousX - steep
-                    if lower < 0 {
-                        lower = 0
-                    }
-                    alpha = CGFloat(Int.random(lower: UInt32(lower), upper: UInt32(previousX))) / 10.0
-                }
-                
-                newAlpha = alpha
-                previousX = alpha
-                
-                let randomXDirection = arc4random_uniform(hillFactor)
-                
-                if randomXDirection == 0 {
-                    if previousXDirection == 0 {
-                        previousXDirection = 1
-                    } else {
-                        previousXDirection = 0
-                    }
-                }
-                xArray.append(newAlpha)
-            }
-        }
-
-        for _ in 0..<yCount {
-            fillXArray()
-            pointCloud.append(xArray)
-        }
-        
         var previousDirection = 1
+        
+        self.hillFactor = 10
 
         for i in 0..<pointCloud.count {
             for j in 0..<pointCloud[i].count {
@@ -141,25 +97,54 @@ class Noise {
                     
                     let top = pointCloud[x][y - 1]
                     let left = pointCloud[x - 1][y]
-                    let right = pointCloud[x + 1][y]
-                    let bottom = pointCloud[x][y + 1]
                     
-                    let average = (left + top) / 2.0
+                    var right = pointCloud[x + 1][y]
+                    var bottom = pointCloud[x][y + 1]
+
+                    var average = (left + top) / 2.0
+
                     var alpha:CGFloat = 0.0
-                    //print("top: \(top), left: \(left)")
+                    
+                    let randomIncrement = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(steep))) / 10.0
+                    
                     if previousDirection == 1 {
+
+                        if right == 0.0 {
+                            right = left + randomIncrement
+                        }
+                        if bottom == 0.0 {
+                            bottom = top + randomIncrement
+                        }
                         
-                        alpha = average + (CGFloat(Int.random(lower: UInt32(0), upper: UInt32(steep))) / 10.0)
+                        average = (left + top + bottom + right) / 4.0
+                        
+                        alpha = average + randomIncrement
+                        if alpha > 1.0 {
+                            alpha = 1.0
+                        }
                         
                     } else {
                         
-                        alpha = average - (CGFloat(Int.random(lower: UInt32(0), upper: UInt32(steep))) / 10.0)
+                        if right == 0.0 {
+                            right = left - randomIncrement
+                        }
+                        
+                        if bottom == 0.0 {
+                            bottom = top - randomIncrement
+                        }
+                        
+                        average = (left + top + bottom + right) / 4.0
+
+                        alpha = average - randomIncrement
+                        if alpha < 0.0 {
+                            alpha = 0.0
+                        }
                     }
-                    pointCloud[x][y] = alpha
                     
+                    pointCloud[x][y] = alpha
                 }
                 
-                let randomDirection = arc4random_uniform(10)
+                let randomDirection = arc4random_uniform(hillFactor)
                 if randomDirection == 0 {
                     if previousDirection == 0 {
                         previousDirection = 1

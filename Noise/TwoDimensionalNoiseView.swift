@@ -26,7 +26,7 @@ class TwoDimensionalNoiseView: UIView {
         super.draw(rect)
 
         let noise = Noise()
-        noise.spacing = 2.0
+        noise.spacing = 1.0
         let alphas = noise.twoD(rect: self.frame)
         let ovalLayer = CAShapeLayer()
         ovalLayer.frame = self.frame
