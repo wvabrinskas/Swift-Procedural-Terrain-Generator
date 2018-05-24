@@ -98,7 +98,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
-        self.contentView.layer.addSublayer(graphLayer)
+        //self.contentView.layer.addSublayer(graphLayer)
 
     }
 
@@ -109,28 +109,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        contentView.backgroundColor = .black
-        view.backgroundColor = .black
+        contentView.backgroundColor = .clear
+        view.backgroundColor = .clear
         //generateTerrain(samples: 501)
+        let twoD = TwoDimensionalNoiseView(frame: CGRect(x: 50, y: 56, width: self.view.frame.size.width - 100, height: 300))
+        self.view.addSubview(twoD)
         
-        let noise = Noise()
-        noise.spacing = 3.0
-        let alphas = noise.twoD(rect: graphLayer.frame)
-        
-        for x in 0..<alphas.count {
-            for y in 0..<alphas[x].count {
-                let shape = CGPath(rect: CGRect(x: CGFloat(y) * noise.spacing, y: CGFloat(x) * noise.spacing, width: noise.spacing, height: noise.spacing), transform: nil)
-                let ovalLayer = CAShapeLayer()
-                
-                let alpha = alphas[x][y]
-                
-                ovalLayer.fillColor = UIColor(white: 1.0, alpha: alpha).cgColor
-                ovalLayer.strokeColor = UIColor.clear.cgColor
-                ovalLayer.path = shape
-                
-                self.graphLayer.addSublayer(ovalLayer)
-            }
-        }
     }
     
     @objc func hideKeyboard() {

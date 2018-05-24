@@ -12,6 +12,7 @@
 		5003473C20AF43E5002743F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5003473B20AF43E5002743F9 /* Assets.xcassets */; };
 		5003473F20AF43E5002743F9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5003473D20AF43E5002743F9 /* LaunchScreen.storyboard */; };
 		5020F25D20AF7354001F9F12 /* Noise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5020F25C20AF7354001F9F12 /* Noise.swift */; };
+		5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */; };
 		509D409A20B33ADF009D2440 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 509D409920B33ADF009D2440 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,7 @@
 		5003473E20AF43E5002743F9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5003474020AF43E5002743F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5020F25C20AF7354001F9F12 /* Noise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Noise.swift; sourceTree = "<group>"; };
+		5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoDimensionalNoiseView.swift; sourceTree = "<group>"; };
 		509D409920B33ADF009D2440 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +61,7 @@
 				5003473420AF43E4002743F9 /* AppDelegate.swift */,
 				5003473620AF43E4002743F9 /* ViewController.swift */,
 				5020F25C20AF7354001F9F12 /* Noise.swift */,
+				5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */,
 				509D409920B33ADF009D2440 /* Main.storyboard */,
 				5003473B20AF43E5002743F9 /* Assets.xcassets */,
 				5003473D20AF43E5002743F9 /* LaunchScreen.storyboard */,
@@ -140,6 +143,7 @@
 			files = (
 				5003473720AF43E4002743F9 /* ViewController.swift in Sources */,
 				5020F25D20AF7354001F9F12 /* Noise.swift in Sources */,
+				5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */,
 				5003473520AF43E4002743F9 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
