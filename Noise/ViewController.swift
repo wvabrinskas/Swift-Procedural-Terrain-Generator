@@ -114,12 +114,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         //generateTerrain(samples: 501)
         
         let noise = Noise()
-        noise.spacing = 5.0
+        noise.spacing = 3.0
         let alphas = noise.twoD(rect: graphLayer.frame)
         
         for x in 0..<alphas.count {
             for y in 0..<alphas[x].count {
-                print(x)
                 let shape = CGPath(rect: CGRect(x: CGFloat(y) * noise.spacing, y: CGFloat(x) * noise.spacing, width: noise.spacing, height: noise.spacing), transform: nil)
                 let ovalLayer = CAShapeLayer()
                 

@@ -72,11 +72,62 @@ class Noise {
         return values
     }
     
+    func random() -> CGFloat {
+        return CGFloat(arc4random_uniform(10)) / 10.0
+    }
+    
     func twoD(rect: CGRect) -> [[CGFloat]] {
         let xCount = Int(rect.size.width / self.spacing)
         let yCount = Int(rect.size.height / self.spacing)
+    
+        var pointCloud = [[CGFloat]]()
         
-        var pointCloud: [[CGFloat]] = Array(repeating: Array(repeating: CGFloat(arc4random_uniform(10)) / 10.0, count: xCount), count: yCount)
+        let steep:CGFloat = 9.0
+
+        var xArray = [CGFloat]()
+        var previousX = random()
+        var previousXDirection = 1
+        
+        func fillXArray() {
+            xArray.removeAll()
+            for _ in 0..<xCount {
+                
+                var newAlpha = previousX
+                
+                var alpha:CGFloat = 0.0
+                //print("top: \(top), left: \(left)")
+                if previousXDirection == 1 {
+                    //up average -> average + steepness
+                    alpha = CGFloat(Int.random(lower: UInt32(previousX), upper: UInt32(previousX + steep))) / 10.0
+                } else {
+                    //down average - steepness -> average
+                    var lower = previousX - steep
+                    if lower < 0 {
+                        lower = 0
+                    }
+                    alpha = CGFloat(Int.random(lower: UInt32(lower), upper: UInt32(previousX))) / 10.0
+                }
+                
+                newAlpha = alpha
+                previousX = alpha
+                
+                let randomXDirection = arc4random_uniform(hillFactor)
+                
+                if randomXDirection == 0 {
+                    if previousXDirection == 0 {
+                        previousXDirection = 1
+                    } else {
+                        previousXDirection = 0
+                    }
+                }
+                xArray.append(newAlpha)
+            }
+        }
+
+        for _ in 0..<yCount {
+            fillXArray()
+            pointCloud.append(xArray)
+        }
         
         var previousDirection = 1
 
@@ -86,25 +137,27 @@ class Noise {
                 let x = i
                 let y = j
                 
-                if x > 0 && y > 0 {
+                if x > 0 && y > 0 && y + 1 < pointCloud[i].count && x + 1 < pointCloud.count {
                     
                     let top = pointCloud[x][y - 1]
                     let left = pointCloud[x - 1][y]
+                    let right = pointCloud[x + 1][y]
+                    let bottom = pointCloud[x][y + 1]
                     
-                    var upper = 10
-                    var lower = 0
-                    
-                    let average = (top * left) / 2.0
-                    
+                    let average = (right + bottom + top + left) / 4.0
+                    var alpha:CGFloat = 0.0
+                    //print("top: \(top), left: \(left)")
                     if previousDirection == 1 {
-                        //up
-                        lower = Int(average)
+                        //up average -> average + steepness
+                        alpha = CGFloat(Int.random(lower: UInt32(average), upper: UInt32(average + steep))) / 10.0
                     } else {
-                        //down
-                        upper = Int(average)
+                        //down average - steepness -> average
+                        var lower = average - steep
+                        if lower < 0 {
+                            lower = 0
+                        }
+                        alpha = CGFloat(Int.random(lower: UInt32(lower), upper: UInt32(average))) / 10.0
                     }
-                    
-                    let alpha = CGFloat(Int.random(lower: UInt32(lower), upper: UInt32(upper))) / 10.0
                     pointCloud[x][y] = alpha
                     
                 }
