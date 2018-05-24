@@ -89,7 +89,7 @@ class Noise {
         return CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
     }
     
-    func twoD(rect: CGRect, completion: @escaping(_ points:[[CGFloat]]) -> ()) {
+    func twoD(rect: CGRect) -> [[CGFloat]] {
         
         self.steepness = 10
         self.hillFactor = 100
