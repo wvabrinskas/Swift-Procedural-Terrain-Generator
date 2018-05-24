@@ -135,18 +135,21 @@ class Noise {
 
                     var alpha:CGFloat = 0.0
                     
-                    let randomIncrement = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
+                    func randomIncrement() -> CGFloat {
+                        return CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
+                    }
+                    
                     
                     if previousDirection == 1 {
 
                         if right == 0.0 {
-                            right = average + randomIncrement
+                            right = average + randomIncrement()
                             if right > 1.0 {
                                 right = 1.0
                             }
                         }
                         if bottom == 0.0 {
-                            bottom = average + randomIncrement
+                            bottom = average + randomIncrement()
                             if bottom > 1.0 {
                                 bottom = 1.0
                             }
@@ -154,7 +157,7 @@ class Noise {
                         
                         average = (left + top + bottom + right) / 4.0
                         
-                        alpha = average + randomIncrement
+                        alpha = average + randomIncrement()
                         if alpha > 1.0 {
                             alpha = 1.0
                         }
@@ -162,14 +165,14 @@ class Noise {
                     } else {
                         
                         if right == 0.0 {
-                            right = average - randomIncrement
+                            right = average - randomIncrement()
                             if right < 0.0 {
                                 right = 0.0
                             }
                         }
                         
                         if bottom == 0.0 {
-                            bottom = average - randomIncrement
+                            bottom = average - randomIncrement()
                             if bottom < 0.0 {
                                 bottom = 0.0
                             }
@@ -177,7 +180,7 @@ class Noise {
                         
                         average = (left + top + bottom + right) / 4.0
 
-                        alpha = average - randomIncrement
+                        alpha = average - randomIncrement()
                         if alpha < 0.0 {
                             alpha = 0.0
                         }
