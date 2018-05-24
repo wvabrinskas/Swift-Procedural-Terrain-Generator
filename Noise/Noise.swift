@@ -82,10 +82,11 @@ class Noise {
     
         var pointCloud:[[CGFloat]] = Array(repeating: Array(repeating: 0.0, count: xCount), count: yCount)
         
-        let steep:CGFloat = 2.0
+        let steep:CGFloat = 7.0
         var previousDirection = 1
         
-        self.hillFactor = 10
+        self.hillFactor = 100
+        
 
         for i in 0..<pointCloud.count {
             for j in 0..<pointCloud[i].count {
@@ -93,27 +94,29 @@ class Noise {
                 let x = i
                 let y = j
                 
-                if x > 0 && y > 0 && y + 1 < pointCloud[i].count && x + 1 < pointCloud.count {
+                if x > 1 && y > 1 && y + 2 < pointCloud[i].count && x + 2 < pointCloud.count {
                     
-                    let top = pointCloud[x][y - 1]
-                    let left = pointCloud[x - 1][y]
+                    let top = pointCloud[x][y - 2]
+                    let left = pointCloud[x - 2][y]
                     
-                    var right = pointCloud[x + 1][y]
-                    var bottom = pointCloud[x][y + 1]
+                    var right = pointCloud[x + 2][y]
+                    var bottom = pointCloud[x][y + 2]
 
                     var average = (left + top) / 2.0
 
                     var alpha:CGFloat = 0.0
                     
-                    let randomIncrement = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(steep))) / 10.0
+                    let randomIncrement = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(steep))) / 100.0
                     
                     if previousDirection == 1 {
 
                         if right == 0.0 {
-                            right = left + randomIncrement
+                            right = average + randomIncrement
+                            pointCloud[x + 1][y] = right
                         }
                         if bottom == 0.0 {
-                            bottom = top + randomIncrement
+                            bottom = average + randomIncrement
+                            pointCloud[x][y + 1] = bottom
                         }
                         
                         average = (left + top + bottom + right) / 4.0
@@ -126,11 +129,13 @@ class Noise {
                     } else {
                         
                         if right == 0.0 {
-                            right = left - randomIncrement
+                            right = average - randomIncrement
+                            pointCloud[x + 1][y] = right
                         }
                         
                         if bottom == 0.0 {
-                            bottom = top - randomIncrement
+                            bottom = average - randomIncrement
+                            pointCloud[x][y + 1] = bottom
                         }
                         
                         average = (left + top + bottom + right) / 4.0
