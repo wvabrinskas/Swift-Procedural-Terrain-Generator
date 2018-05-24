@@ -85,16 +85,19 @@ class Noise {
         return CGFloat(arc4random_uniform(10)) / 10.0
     }
     
-    func twoD(rect: CGRect) -> [[CGFloat]] {
+    private func randomIncrement() -> CGFloat {
+        return CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
+    }
+    
+    func twoD(rect: CGRect, completion: @escaping(_ points:[[CGFloat]]) -> ()) {
         
-        var previousDirection = 1
-        
-        self.steepness = 7
+        self.steepness = 10
         self.hillFactor = 100
 
         var pointCloud:[[CGFloat]] = self.generatePointCloud(rect: rect)
         
         var previousX = random()
+        var previousDirection = 1
 
         for i in 0..<pointCloud.count {
             for j in 0..<pointCloud[i].count {
@@ -103,18 +106,17 @@ class Noise {
                 let y = j
                 
                 if x == 0 || y == 0 {
-                    let randomIncrement = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
                     //print("top: \(top), left: \(left)")
                     var xAlpha:CGFloat = 0.0
                     if previousDirection == 1 {
                         //up average -> average + steepness
-                        xAlpha = previousX + randomIncrement
+                        xAlpha = previousX + randomIncrement()
                         if xAlpha > 1.0 {
                             xAlpha = 1.0
                         }
                     } else {
                         //down average - steepness -> average
-                        xAlpha = previousX - randomIncrement
+                        xAlpha = previousX - randomIncrement()
                         if xAlpha < 0.0 {
                             xAlpha = 0.0
                         }
@@ -135,10 +137,7 @@ class Noise {
 
                     var alpha:CGFloat = 0.0
                     
-                    func randomIncrement() -> CGFloat {
-                        return CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
-                    }
-                    
+
                     
                     if previousDirection == 1 {
 
