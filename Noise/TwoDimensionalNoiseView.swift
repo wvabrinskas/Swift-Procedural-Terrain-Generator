@@ -38,7 +38,6 @@ class TwoDimensionalNoiseView: UIView {
             for y in 0..<alphas[x].count {
                 let newPath = UIBezierPath(rect: CGRect(x: CGFloat(y) * noise.spacing, y: CGFloat(x) * noise.spacing, width: noise.spacing, height: noise.spacing))
                 let alpha = alphas[x][y]
-                
                 newPath.fill(with: .normal, alpha: alpha)
                 ovalLayer.path = newPath.cgPath
             }

@@ -91,7 +91,7 @@ class Noise {
     
     func twoD(rect: CGRect) -> [[CGFloat]] {
         
-        self.steepness = 10
+        self.steepness = 7
         self.hillFactor = 100
 
         var pointCloud:[[CGFloat]] = self.generatePointCloud(rect: rect)
@@ -99,9 +99,12 @@ class Noise {
         var previousX = random()
         var previousDirection = 1
 
+        let steps = 2
+        
         for i in 0..<pointCloud.count {
             for j in 0..<pointCloud[i].count {
-
+                
+                let increment = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
                 let x = i
                 let y = j
                 
@@ -125,66 +128,66 @@ class Noise {
                     pointCloud[x][y] = xAlpha
                 }
                 
-                if x > 1 && y > 1 && y + 2 < pointCloud[i].count && x + 2 < pointCloud.count {
+                if x > (steps - 1) && y > (steps - 1) && y + steps < pointCloud[i].count && x + steps < pointCloud.count {
                     
-                    let top = pointCloud[x][y - 2]
-                    let left = pointCloud[x - 2][y]
+                    let left = pointCloud[x][y - steps]
+                    let top = pointCloud[x - steps][y]
                     
-                    var right = pointCloud[x + 2][y]
-                    var bottom = pointCloud[x][y + 2]
-
+                    var bottom = pointCloud[x + steps][y]
+                    var right = pointCloud[x][y + steps]
+                    
                     var average = (left + top) / 2.0
-
+                    
                     var alpha:CGFloat = 0.0
                     
                     if previousDirection == 1 {
 
                         if right == 0.0 {
-                            right = average + randomIncrement()
+                            right = average + increment
                             if right > 1.0 {
                                 right = 1.0
                             }
                         }
                         if bottom == 0.0 {
-                            bottom = average + randomIncrement()
+                            bottom = average + increment
                             if bottom > 1.0 {
                                 bottom = 1.0
                             }
                         }
-                        
+
                         average = (left + top + bottom + right) / 4.0
-                        
-                        alpha = average + randomIncrement()
+
+                        alpha = average + increment
                         if alpha > 1.0 {
                             alpha = 1.0
                         }
                         
                     } else {
-                        
+
                         if right == 0.0 {
-                            right = average - randomIncrement()
+                            right = average - increment
                             if right < 0.0 {
                                 right = 0.0
                             }
                         }
-                        
+
                         if bottom == 0.0 {
-                            bottom = average - randomIncrement()
+                            bottom = average - increment
                             if bottom < 0.0 {
                                 bottom = 0.0
                             }
                         }
-                        
-                        average = (left + top + bottom + right) / 4.0
 
-                        alpha = average - randomIncrement()
+                        average = (left + top + bottom + right) / 4.0
+                        
+                        alpha = average - increment
                         if alpha < 0.0 {
                             alpha = 0.0
                         }
                     }
                     
-                    pointCloud[x + 1][y] = right
-                    pointCloud[x][y + 1] = bottom
+                    pointCloud[x + 1][y] = bottom
+                    pointCloud[x][y + 1] = right
                     
                     pointCloud[x][y] = alpha
                 }

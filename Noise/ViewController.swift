@@ -114,7 +114,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         //generateTerrain(samples: 501)
         let twoD = TwoDimensionalNoiseView(frame: CGRect(x: 50, y: 56, width: self.view.frame.size.width - 100, height: 300))
         self.view.addSubview(twoD)
-        
     }
     
     @objc func hideKeyboard() {
