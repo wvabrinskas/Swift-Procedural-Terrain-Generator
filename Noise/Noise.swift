@@ -137,8 +137,6 @@ class Noise {
 
                     var alpha:CGFloat = 0.0
                     
-
-                    
                     if previousDirection == 1 {
 
                         if right == 0.0 {
