@@ -92,21 +92,20 @@ class Noise {
     func twoD(rect: CGRect) -> [[CGFloat]] {
         
         self.steepness = 7
-        self.hillFactor = 100
+        self.hillFactor = 50
 
         var pointCloud:[[CGFloat]] = self.generatePointCloud(rect: rect)
         
         var previousX = random()
         var previousDirection = 1
 
-        let steps = 2
+        let steps = 1
         
         for i in 0..<pointCloud.count {
             for j in 0..<pointCloud[i].count {
                 
-                let increment = CGFloat(Int.random(lower: UInt32(0), upper: UInt32(self.steepness))) / 100.0
-                let x = i
-                let y = j
+                let y = i
+                let x = j
                 
                 if x == 0 || y == 0 {
                     //print("top: \(top), left: \(left)")
@@ -125,82 +124,51 @@ class Noise {
                         }
                     }
                     previousX = xAlpha
-                    pointCloud[x][y] = xAlpha
+                    pointCloud[y][x] = xAlpha
                 }
                 
-                if x > (steps - 1) && y > (steps - 1) && y + steps < pointCloud[i].count && x + steps < pointCloud.count {
+                if x > (steps - 1) && y > (steps - 1) && x + steps < pointCloud[i].count && y + steps < pointCloud.count {
                     
-                    let left = pointCloud[x][y - steps]
-                    let top = pointCloud[x - steps][y]
-                    
-                    var bottom = pointCloud[x + steps][y]
-                    var right = pointCloud[x][y + steps]
-                    
-                    var average = (left + top) / 2.0
+                    let left = pointCloud[y][x - steps]
+                    let top = pointCloud[y - steps][x]
+
+                    let average = (top + left) / 2.0
                     
                     var alpha:CGFloat = 0.0
                     
-                    if previousDirection == 1 {
-
-                        if right == 0.0 {
-                            right = average + increment
-                            if right > 1.0 {
-                                right = 1.0
-                            }
-                        }
-                        if bottom == 0.0 {
-                            bottom = average + increment
-                            if bottom > 1.0 {
-                                bottom = 1.0
-                            }
-                        }
-
-                        average = (left + top + bottom + right) / 4.0
-
-                        alpha = average + increment
+                    if previousDirection == 1 { //up
+                        
+                        alpha = average + randomIncrement()
+                        
                         if alpha > 1.0 {
                             alpha = 1.0
                         }
                         
-                    } else {
+                    } else { //down
 
-                        if right == 0.0 {
-                            right = average - increment
-                            if right < 0.0 {
-                                right = 0.0
-                            }
-                        }
+                        alpha = average - randomIncrement()
 
-                        if bottom == 0.0 {
-                            bottom = average - increment
-                            if bottom < 0.0 {
-                                bottom = 0.0
-                            }
-                        }
-
-                        average = (left + top + bottom + right) / 4.0
-                        
-                        alpha = average - increment
                         if alpha < 0.0 {
                             alpha = 0.0
                         }
+
                     }
                     
-                    pointCloud[x + 1][y] = bottom
-                    pointCloud[x][y + 1] = right
+                    pointCloud[y][x] = alpha
                     
-                    pointCloud[x][y] = alpha
+                    let randomDirection = arc4random_uniform(hillFactor)
+                    if randomDirection == 0 {
+                        if previousDirection == 0 {
+                            previousDirection = 1
+                        } else {
+                            previousDirection = 0
+                        }
+                    }
                 }
                 
-                let randomDirection = arc4random_uniform(hillFactor)
-                if randomDirection == 0 {
-                    if previousDirection == 0 {
-                        previousDirection = 1
-                    } else {
-                        previousDirection = 0
-                    }
-                }
+                print("x: \(j)")
             }
+            print("=========== y: \(i) ============")
         }
         return pointCloud
     }
