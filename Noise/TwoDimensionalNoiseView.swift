@@ -26,21 +26,31 @@ class TwoDimensionalNoiseView: UIView {
         super.draw(rect)
 
         let noise = Noise()
-        noise.spacing = 0.5
-        let alphas = noise.twoD(rect: self.frame)
+
         let ovalLayer = CAShapeLayer()
         ovalLayer.frame = self.frame
         
         UIColor.white.setFill()
         self.layer.addSublayer(ovalLayer)
         
-        for x in 0..<alphas.count {
-            for y in 0..<alphas[x].count {
-                let newPath = UIBezierPath(rect: CGRect(x: CGFloat(y) * noise.spacing, y: CGFloat(x) * noise.spacing, width: noise.spacing, height: noise.spacing))
-                let alpha = alphas[x][y]
-                newPath.fill(with: .normal, alpha: alpha)
+        var yOff:Double = 0
+        let inc = 0.01
+        
+        for y in stride(from: 0.0, through: self.frame.size.height, by: 1.0) {
+            var xOff:Double = 0
+
+            for x in stride(from: 0.0, through: self.frame.size.width, by: 1.0) {
+                let newPath = UIBezierPath(rect: CGRect(x: CGFloat(x), y: CGFloat(y), width: 1.0, height: 1.0))
+
+                let alpha:CGFloat = CGFloat(noise.perlin(x: xOff, y: yOff, z: 0.0))
+                UIColor(red: alpha, green: alpha, blue: alpha, alpha: 1.0).setFill()
+                
+                newPath.fill()
                 ovalLayer.path = newPath.cgPath
+                
+                xOff += inc
             }
+            yOff += inc
         }
     }
 }

@@ -90,6 +90,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
     private var previousLineLayer: CAShapeLayer!
     private var previousColor: CGColor!
     
+    
+    enum TerrainType:Int {
+        case Plains, Ocean, Hills, Mountains, Marsh, Islands
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -98,7 +103,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
-        //self.contentView.layer.addSublayer(graphLayer)
+        self.contentView.layer.addSublayer(graphLayer)
 
     }
 
@@ -111,7 +116,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
-        //generateTerrain(samples: 501)
+        //startOneDNoise(samples: 2000)
         let twoD = TwoDimensionalNoiseView(frame: CGRect(x: 50, y: 56, width: self.view.frame.size.width - 100, height: 300))
         self.view.addSubview(twoD)
     }
@@ -161,32 +166,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return UIColor.white.cgColor
     }
     
-    private func addBackgroundLines(currentPoint: CGPoint, index: Int) {
-        let backgroundLineLayer = CAShapeLayer()
-
-        let backgroundLine = UIBezierPath()
-        backgroundLine.move(to: CGPoint(x: currentPoint.x, y: 0))
-        backgroundLine.addLine(to: CGPoint(x: currentPoint.x, y: self.graphLayer.bounds.maxY))
-        
-        backgroundLineLayer.strokeColor = UIColor(white: 1.0, alpha: 0.1).cgColor
-        backgroundLineLayer.path = backgroundLine.cgPath
-        backgroundLineLayer.lineWidth = 1.0
-        
-        if index == 0 || CGFloat(index).remainder(dividingBy: 10.0) == 0 {
-            backgroundLineLayer.lineWidth = 2.0
-            
-            let graphlabel = UILabel(frame: CGRect(x: currentPoint.x - (index == 0 ? 22 : 25), y: self.contentView.frame.maxY - 35, width: 50, height: 20))
-            graphlabel.textAlignment = .center
-            graphlabel.textColor = UIColor(white: 1.0, alpha: 0.2)
-            graphlabel.backgroundColor = .clear
-            graphlabel.font = UIFont.systemFont(ofSize: 10)
-            graphlabel.text = "\(index)"
-            self.contentView.addSubview(graphlabel)
-        }
-        
-        self.graphLayer.insertSublayer(backgroundLineLayer, at: 0)
-    }
-    
     private func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
         
         let shouldGetNewLine:Bool = {
@@ -195,8 +174,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
             }
             return true
         }()
-        
-        self.addBackgroundLines(currentPoint: currentPoint, index: index)
         
         var line = CGMutablePath()
 
@@ -211,7 +188,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         let lineLayer = !shouldGetNewLine ? previousLineLayer! : CAShapeLayer()
 
-        lineLayer.lineWidth = 5.0
+        lineLayer.lineWidth = 2.0
         lineLayer.lineCap = kCALineCapRound
         lineLayer.strokeColor = self.getColor(point: currentPoint)
         lineLayer.path = line
@@ -240,51 +217,109 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    private func generateTerrain(samples: Int) {
-        self.clear()
+    func getTerrain(terrainType: TerrainType) -> (startPoint: CGFloat, offset: CGFloat, type: TerrainType) {
+        var startPoint:CGFloat = 0.0
+        var offset: CGFloat = 0.0
+        let max = graphLayer.bounds.maxY
         
+        switch terrainType {
+        case .Hills:
+            startPoint = 0.5 * max
+            offset = 50.0
+            break
+        case .Ocean:
+            startPoint = 0.1 * max
+            offset = 20.0
+            break
+        case .Islands:
+            startPoint = 0.12 * max
+            offset = 40.0
+            break
+        case .Marsh:
+            startPoint = 0.15 * max
+            offset = 35.0
+            break
+        case .Mountains:
+            startPoint = 0.7 * max
+            offset = 100.0
+            break
+        case .Plains:
+            startPoint = 0.2 * max
+            offset = 10.0
+            break
+        }
+        return (startPoint:startPoint, offset: offset, type: terrainType)
+    }
+    
+    private func transition(terrain:(startPoint: CGFloat, offset: CGFloat, type: TerrainType)) {
+        let randomChange = arc4random_uniform(100)
+        if randomChange == 0 {
+            if terrain.type == TerrainType.Mountains {
+                self.getTerrain(terrainType: .Hills)
+            } else if terrain.type == TerrainType.Hills {
+                self.getTerrain(terrainType: .Plains)
+            } else if terrain.type == TerrainType.Plains {
+                self.getTerrain(terrainType: .Marsh)
+            } else if terrain.type == TerrainType.Ocean {
+                self.getTerrain(terrainType: .Islands)
+            } else if terrain.type == TerrainType.Islands {
+                self.getTerrain(terrainType: .Plains)
+            }
+        }
+    }
+    
+    private func startOneDNoise(samples: Int) {
+        self.clear()
+
+        var i = 0
+        var yOff = 0.0
+        
+        self.scrollView.contentSize = CGSize(width: CGFloat(samples) + 107, height: self.scrollView.contentSize.height)
+
+        var previousPoint: CGPoint?
+
         let max = graphLayer.bounds.minY
         let min = graphLayer.bounds.maxY
         
-        self.scrollView.contentSize = CGSize(width: (CGFloat(samples) * spacing) + 107, height: self.scrollView.contentSize.height)
-        
-        var x = 0
-        
-        let noise = Noise()
-        noise.steepness = adjustment
-        noise.hillFactor = UInt32(self.hillFactorTextField.text ?? "\(10)")!
-        noise.spacing = self.spacing
-        
-        let points = noise.generate(samples: samples, maxHeight: max, minHeight: min)
-        
-        var previousPoint: CGPoint?
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { (timer) in
-            if points.count == 0 {
+        let terrain = getTerrain(terrainType: .Mountains)
+
+        timer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { (timer) in
+            if i == samples {
                 timer.invalidate()
                 return
             }
             
-            if x >= points.count - 1 {
+            if i >= samples - 1 {
                 DispatchQueue.main.async {
                     self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
                 }
                 timer.invalidate()
             }
             
-            self.sampleNumberLabel.text = "\(x + 1)"
+            self.sampleNumberLabel.text = "\(i + 1)"
+
+            var noise = (CGFloat(Noise().perlin(x: 0.0, y: yOff, z: 0.0)) * terrain.offset) + terrain.startPoint
             
-            let current = points[x]
+            if noise < max {
+                noise = max
+            } else if noise > min {
+                noise = min
+            }
             
+            let current = CGPoint(x: CGFloat(i), y: noise)
+
             let currentPoint = CGPoint(x: current.x, y: self.graphLayer.bounds.maxY - (current.y + self.ellipseHeight))
-            self.addGraphics(index: x, previousPoint: previousPoint, currentPoint: currentPoint)
+            self.addGraphics(index: i, previousPoint: previousPoint, currentPoint: currentPoint)
             
             previousPoint = currentPoint
-
-            x += 1
+            
+            yOff += 0.02
+            i += 1
         }
         timer.fire()
+        
     }
+
     
     @IBAction func settingsButtonPressed(_ sender: Any) {
         var isHidden = false
@@ -309,7 +344,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
        self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
         timer.invalidate()
         view.endEditing(true)
-        generateTerrain(samples: Int(sampleTextField.text ?? "\(500)")!)
+        startOneDNoise(samples:  Int(sampleTextField.text ?? "\(500)")!)
         settingsButtonPressed(self)
     }
     
