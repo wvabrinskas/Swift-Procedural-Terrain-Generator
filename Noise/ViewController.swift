@@ -117,8 +117,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
         //startOneDNoise(samples: 2000)
-        let twoD = TwoDimensionalNoiseView(frame: CGRect(x: 50, y: 56, width: self.view.frame.size.width - 100, height: 300))
-        self.view.addSubview(twoD)
+        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+        twoD.start { (layer) in
+            self.graphLayer.addSublayer(layer)
+        }
     }
     
     @objc func hideKeyboard() {

@@ -14,14 +14,8 @@ extension Int {
         return arc4random_uniform(upper - lower) + lower
     }
 }
-//generates a "Perlin" like noise for procedural generation
+//generates Perlin Noise for procedural generation
 class Noise {
-    //how quickly the change is between each point
-    var steepness:UInt32 = 30
-    //the x spacing between each point
-    var spacing:CGFloat = 10.0
-    //how likely the y direction of the noise changes between each point
-    var hillFactor:UInt32 = 10
     
     private lazy var p:[Int] = {
         var newP = [Int]()
@@ -74,7 +68,7 @@ class Noise {
         x -= floor(x)
         y -= floor(y)
         z -= floor(z)
-//
+
         let u:Double = fade(t: x)
         let v:Double = fade(t: y)
         let w:Double = fade(t: z)
@@ -87,65 +81,15 @@ class Noise {
         let BA: Int = p[B] + Z
         let BB: Int = p[B + 1] + Z
         
-        return lerp(t: w, a: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA], x: x, y: y, z: z),  // AND ADD
-                    b: grad(hash: p[BA], x: x-1, y: y, z: z)), // BLENDED
-                    b: lerp(t: u, a: grad(hash: p[AB], x: x, y: y-1, z: z   ),  // RESULTS
-                    b: grad(hash: p[BB], x: x-1, y: y-1, z: z   ))),// FROM  8
-                    b: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA+1], x: x, y: y, z: z-1 ),  // CORNERS
-                    b: grad(hash: p[BA+1], x: x-1, y: y, z: z-1 )), // OF CUBE
+        return lerp(t: w, a: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA], x: x, y: y, z: z),
+                    b: grad(hash: p[BA], x: x-1, y: y, z: z)),
+                    b: lerp(t: u, a: grad(hash: p[AB], x: x, y: y-1, z: z   ),
+                    b: grad(hash: p[BB], x: x-1, y: y-1, z: z   ))),
+                    b: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA+1], x: x, y: y, z: z-1 ),
+                    b: grad(hash: p[BA+1], x: x-1, y: y, z: z-1 )),
                     b: lerp(t: u, a: grad(hash: p[AB+1], x: x  , y: y-1, z: z-1 ),
                     b: grad(hash: p[BB+1], x: x-1, y: y-1, z: z-1 ))))
         
-    }
-    
-    
-    //returns an array of CGPoints describing the noise generated
-    func generate(samples: Int, maxHeight: CGFloat, minHeight:CGFloat) -> [CGPoint] {
-        var values = [CGPoint]()
-        
-        let max = maxHeight
-        let min = minHeight
-        
-        var previousY = CGFloat(arc4random_uniform(UInt32(min)))
-
-        var previousDirection = 1
-        
-        for x in 0..<samples {
-            var newY = previousY
-            
-            if previousDirection == 0 {
-                let down = CGFloat(Int.random(lower: UInt32(previousY), upper: UInt32(previousY) + arc4random_uniform(steepness)))
-                newY = down
-                if down > min {
-                    newY = min
-                }
-            } else {
-                let preUp = previousY - CGFloat(arc4random_uniform(steepness))
-                if preUp < 0 {
-                    newY = 0
-                } else {
-                    let up = CGFloat(Int.random(lower:  UInt32(preUp), upper: UInt32(previousY)))
-                    newY = up
-                    if up < max {
-                        newY = max
-                    }
-                }
-            }
-            
-            let randomDirection = arc4random_uniform(hillFactor)
-            if randomDirection == 0 {
-                if previousDirection == 0 {
-                    previousDirection = 1
-                } else {
-                    previousDirection = 0
-                }
-            }
-            
-            previousY = newY
-            let point = CGPoint(x: CGFloat(x) * spacing, y: newY)
-            values.append(point)
-        }
-        return values
     }
     
 }
