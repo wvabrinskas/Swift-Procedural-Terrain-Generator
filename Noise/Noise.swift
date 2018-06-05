@@ -15,44 +15,29 @@ extension Int {
     }
 }
 //generates Perlin Noise for procedural generation
+//algorithm adapted from the p5.js library https://github.com/processing/p5.js/blob/master/src/math/noise.js
 class Noise {
     
-    private lazy var p:[Int] = {
-        var newP = [Int]()
-        for i in 0..<512 {
-            newP.append(permutation[i % 256])
+    private var yWrapB = 4
+    private lazy var yWrap = 1 << yWrapB
+    private var zWrapB = 8
+    private lazy var zWrap = 1 << zWrapB
+    private var size = 4095
+    
+    var octaves = 4
+    var amplitude = 0.5
+
+    private lazy var perlin:[Double] = {
+        var p = [Double]()
+        for _ in 0..<size + 1 {
+            let random = Double(arc4random_uniform(1000)) / 1000.0
+            p.append(random)
         }
-        return newP
+        return p
     }()
     
-    private let permutation: [Int] = [151,160,137,91,90,15,
-                              131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
-                              190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
-                              88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
-                              77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
-                              102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
-                              135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
-                              5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
-                              223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
-                              129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
-                              251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
-                              49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-                              138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
-    
-    private func lerp(t: Double, a: Double, b: Double) -> Double {
-        return a + t * (b - a)
-    }
-    
-    private func fade(t: Double) -> Double {
-        return t * t * t * (t * (t * 6 - 15) + 10)
-    }
-    
-    private func grad(hash: Int, x: Double, y: Double, z: Double) -> Double {
-        let h = hash & 15
-        let u: Double = h < 8 ? x : y
-        let v: Double = h < 4 ? y : h == 12 || h == 14 ? x : z
-        
-        return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v)
+    private func scaled_cosine(_ i: Double) -> Double {
+        return 0.5 * (1.0 - cos(i * Double.pi))
     }
     
     public func perlin(x: Double, y: Double, z: Double) -> Double {
@@ -61,35 +46,79 @@ class Noise {
         var y = y
         var z = z
         
-        let X:Int = Int(floor(x)) & 255
-        let Y:Int = Int(floor(y)) & 255
-        let Z:Int = Int(floor(z)) & 255
+        if (x < 0) {
+            x = -x;
+        }
+        if (y < 0) {
+            y = -y;
+        }
+        if (z < 0) {
+            z = -z;
+        }
         
-        x -= floor(x)
-        y -= floor(y)
-        z -= floor(z)
+        var xi = Int(floor(x))
+        var yi = Int(floor(y))
+        var zi = Int(floor(z))
+        
+        var xf = x - Double(xi)
+        var yf = y - Double(yi)
+        var zf = z - Double(zi)
+        
+        var rxf = 0.0
+        var ryf = 0.0
+        
+        var r = 0.0
+        var ampl = 0.5
+        
+        var n1 = 0.0
+        var n2 = 0.0
+        var n3 = 0.0
+        
+        for _ in 0..<octaves {
 
-        let u:Double = fade(t: x)
-        let v:Double = fade(t: y)
-        let w:Double = fade(t: z)
+            var of = xi + (yi << yWrapB) + (zi << zWrapB)
+            
+            rxf = scaled_cosine(xf)
+            ryf = scaled_cosine(yf)
+            
+            n1 = perlin[of & size]
+            n1 += rxf * (perlin[(of + 1) & size] - n1)
+            n2 = perlin[(of + yWrap) & size]
+            n2 += rxf * (perlin[(of + yWrap + 1) & size] - n2)
+            n1 += ryf * (n2 - n1)
+            
+            of += zWrap
+            n2 = perlin[of & size]
+            n2 += rxf * (perlin[(of + 1) & size] - n2)
+            n3 = perlin[(of + yWrap) & size]
+            n3 += rxf * (perlin[(of + yWrap + 1) & size] - n3)
+            n2 += ryf * (n3 - n2)
+            
+            n1 += scaled_cosine(zf) * (n2 - n1)
         
-        let A: Int = p[X] + Y
-        let AA:Int = p[A] + Z
-        let AB:Int = p[A + 1] + Z
-        
-        let B: Int =  p[X + 1] + Y
-        let BA: Int = p[B] + Z
-        let BB: Int = p[B + 1] + Z
-        
-        return lerp(t: w, a: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA], x: x, y: y, z: z),
-                    b: grad(hash: p[BA], x: x-1, y: y, z: z)),
-                    b: lerp(t: u, a: grad(hash: p[AB], x: x, y: y-1, z: z   ),
-                    b: grad(hash: p[BB], x: x-1, y: y-1, z: z   ))),
-                    b: lerp(t: v, a: lerp(t: u, a: grad(hash: p[AA+1], x: x, y: y, z: z-1 ),
-                    b: grad(hash: p[BA+1], x: x-1, y: y, z: z-1 )),
-                    b: lerp(t: u, a: grad(hash: p[AB+1], x: x  , y: y-1, z: z-1 ),
-                    b: grad(hash: p[BB+1], x: x-1, y: y-1, z: z-1 ))))
-        
+            r += n1 * ampl
+            ampl *= amplitude
+            xi <<= 1
+            xf *= 2
+            yi <<= 1
+            yf *= 2
+            zi <<= 1
+            zf *= 2
+            
+            if (xf >= 1.0) {
+                xi += 1
+                xf -= 1
+            }
+            if (yf >= 1.0) {
+                yi += 1
+                yf -= 1
+            }
+            if (zf >= 1.0) {
+                zi += 1
+                zf -= 1
+            }
+        }
+        return r
     }
     
 }

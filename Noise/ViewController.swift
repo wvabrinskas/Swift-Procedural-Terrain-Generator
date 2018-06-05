@@ -90,10 +90,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     private var previousLineLayer: CAShapeLayer!
     private var previousColor: CGColor!
     
-    
-    enum TerrainType:Int {
-        case Plains, Ocean, Hills, Mountains, Marsh, Islands
-    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -116,11 +113,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
-        //startOneDNoise(samples: 2000)
-        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
-        twoD.start { (layer) in
-            self.graphLayer.addSublayer(layer)
-        }
+        startOneDNoise(samples: 2000)
+//        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+//        twoD.start { (layer) in
+//            self.graphLayer.addSublayer(layer)
+//        }
     }
     
     @objc func hideKeyboard() {
@@ -219,72 +216,34 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func getTerrain(terrainType: TerrainType) -> (startPoint: CGFloat, offset: CGFloat, type: TerrainType) {
-        var startPoint:CGFloat = 0.0
-        var offset: CGFloat = 0.0
-        let max = graphLayer.bounds.maxY
+    func map(value: Double, minV: Double, maxV:Double, minD: Double, maxD: Double) -> Double {
         
-        switch terrainType {
-        case .Hills:
-            startPoint = 0.5 * max
-            offset = 50.0
-            break
-        case .Ocean:
-            startPoint = 0.1 * max
-            offset = 20.0
-            break
-        case .Islands:
-            startPoint = 0.12 * max
-            offset = 40.0
-            break
-        case .Marsh:
-            startPoint = 0.15 * max
-            offset = 35.0
-            break
-        case .Mountains:
-            startPoint = 0.7 * max
-            offset = 100.0
-            break
-        case .Plains:
-            startPoint = 0.2 * max
-            offset = 10.0
-            break
-        }
-        return (startPoint:startPoint, offset: offset, type: terrainType)
+        
+        return value
     }
     
-    private func transition(terrain:(startPoint: CGFloat, offset: CGFloat, type: TerrainType)) {
-        let randomChange = arc4random_uniform(100)
-        if randomChange == 0 {
-            if terrain.type == TerrainType.Mountains {
-                self.getTerrain(terrainType: .Hills)
-            } else if terrain.type == TerrainType.Hills {
-                self.getTerrain(terrainType: .Plains)
-            } else if terrain.type == TerrainType.Plains {
-                self.getTerrain(terrainType: .Marsh)
-            } else if terrain.type == TerrainType.Ocean {
-                self.getTerrain(terrainType: .Islands)
-            } else if terrain.type == TerrainType.Islands {
-                self.getTerrain(terrainType: .Plains)
-            }
-        }
+    func getTerrain(terrainType: Terrain.TerrainType) -> Terrain {
+        let max = graphLayer.bounds.maxY
+        return Terrain(type: terrainType, maxY: Double(max))
     }
+    
     
     private func startOneDNoise(samples: Int) {
         self.clear()
 
         var i = 0
-        var yOff = 0.0
+        var xOff = 0.0
         
         self.scrollView.contentSize = CGSize(width: CGFloat(samples) + 107, height: self.scrollView.contentSize.height)
 
         var previousPoint: CGPoint?
 
-        let max = graphLayer.bounds.minY
-        let min = graphLayer.bounds.maxY
+        let max = Double(graphLayer.bounds.minY)
+        let min = Double(graphLayer.bounds.maxY)
         
         let terrain = getTerrain(terrainType: .Mountains)
 
+        let noise = Noise()
         timer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { (timer) in
             if i == samples {
                 timer.invalidate()
@@ -299,23 +258,26 @@ class ViewController: UIViewController, UITextFieldDelegate {
             }
             
             self.sampleNumberLabel.text = "\(i + 1)"
-
-            var noise = (CGFloat(Noise().perlin(x: 0.0, y: yOff, z: 0.0)) * terrain.offset) + terrain.startPoint
             
-            if noise < max {
-                noise = max
-            } else if noise > min {
-                noise = min
+            
+            let noise = noise.perlin(x: xOff, y: 0.0, z: 0.0)
+            var y = (noise * terrain.offset) + terrain.startPoint
+            print(noise)
+
+            if y < max {
+                y = max
+            } else if y > min {
+                y = min
             }
             
-            let current = CGPoint(x: CGFloat(i), y: noise)
+            let current = CGPoint(x: CGFloat(i), y: CGFloat(y))
 
             let currentPoint = CGPoint(x: current.x, y: self.graphLayer.bounds.maxY - (current.y + self.ellipseHeight))
             self.addGraphics(index: i, previousPoint: previousPoint, currentPoint: currentPoint)
             
             previousPoint = currentPoint
             
-            yOff += 0.02
+            xOff += 0.01
             i += 1
         }
         timer.fire()

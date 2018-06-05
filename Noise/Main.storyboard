@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
@@ -175,7 +175,6 @@
                                     <constraint firstItem="ABB-A8-DPx" firstAttribute="leading" secondItem="LTf-Cj-ZTk" secondAttribute="trailing" constant="4" id="IEg-2e-37d"/>
                                     <constraint firstAttribute="trailing" secondItem="ABB-A8-DPx" secondAttribute="trailing" constant="15" id="Jt4-nJ-q6n"/>
                                     <constraint firstAttribute="height" constant="110" id="JwF-Oj-cXa"/>
-                                    <constraint firstAttribute="width" constant="644" id="K7z-XZ-rzb"/>
                                     <constraint firstItem="E0f-gO-5kb" firstAttribute="leading" secondItem="U3F-wf-S17" secondAttribute="leading" constant="24" id="M60-1w-VU7"/>
                                     <constraint firstItem="but-2S-1KW" firstAttribute="leading" secondItem="E0f-gO-5kb" secondAttribute="leading" id="N6w-1o-MGi"/>
                                     <constraint firstItem="MIQ-rA-LqR" firstAttribute="top" secondItem="but-2S-1KW" secondAttribute="top" constant="-1" id="Nqq-5X-ccA"/>

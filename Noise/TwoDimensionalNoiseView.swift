@@ -60,8 +60,8 @@ class TwoDimensionalNoiseView: UIView {
             }
             
             print("should add layer")
-            complete(noiseLayer)
             UIGraphicsEndImageContext()
+            complete(noiseLayer)
         }
     }
 }
