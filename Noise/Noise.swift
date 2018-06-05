@@ -36,7 +36,7 @@ class Noise {
         return p
     }()
     
-    private func scaled_cosine(_ i: Double) -> Double {
+    private func scaledCosine(_ i: Double) -> Double {
         return 0.5 * (1.0 - cos(i * Double.pi))
     }
     
@@ -78,8 +78,8 @@ class Noise {
 
             var of = xi + (yi << yWrapB) + (zi << zWrapB)
             
-            rxf = scaled_cosine(xf)
-            ryf = scaled_cosine(yf)
+            rxf = scaledCosine(xf)
+            ryf = scaledCosine(yf)
             
             n1 = perlin[of & size]
             n1 += rxf * (perlin[(of + 1) & size] - n1)
@@ -94,7 +94,7 @@ class Noise {
             n3 += rxf * (perlin[(of + yWrap + 1) & size] - n3)
             n2 += ryf * (n3 - n2)
             
-            n1 += scaled_cosine(zf) * (n2 - n1)
+            n1 += scaledCosine(zf) * (n2 - n1)
         
             r += n1 * ampl
             ampl *= amplitude

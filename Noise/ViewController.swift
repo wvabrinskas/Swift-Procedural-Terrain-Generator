@@ -241,9 +241,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let max = Double(graphLayer.bounds.minY)
         let min = Double(graphLayer.bounds.maxY)
         
-        let terrain = getTerrain(terrainType: .Mountains)
+        let terrain = getTerrain(terrainType: .Islands)
 
         let noise = Noise()
+        noise.amplitude = terrain.amplitude
+        noise.octaves = terrain.roughness
+        
         timer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { (timer) in
             if i == samples {
                 timer.invalidate()
@@ -262,7 +265,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             let noise = noise.perlin(x: xOff, y: 0.0, z: 0.0)
             var y = (noise * terrain.offset) + terrain.startPoint
-            print(noise)
 
             if y < max {
                 y = max
