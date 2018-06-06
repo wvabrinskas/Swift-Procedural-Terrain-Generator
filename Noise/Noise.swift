@@ -14,6 +14,7 @@ extension Int {
         return arc4random_uniform(upper - lower) + lower
     }
 }
+
 //generates Perlin Noise for procedural generation
 //algorithm adapted from the p5.js library https://github.com/processing/p5.js/blob/master/src/math/noise.js
 class Noise {

@@ -113,9 +113,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
-        //startOneDNoise(samples: 2000)
-        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
-        self.view.addSubview(twoD)
+        startOneDNoise(samples: 2000)
+//        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+//        self.view.addSubview(twoD)
     }
     
     @objc func hideKeyboard() {
@@ -239,7 +239,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let max = Double(graphLayer.bounds.minY)
         let min = Double(graphLayer.bounds.maxY)
         
-        let terrain = getTerrain(terrainType: .Islands)
+        let terrain = getTerrain(terrainType: .Marsh)
 
         let noise = Noise()
         noise.amplitude = terrain.amplitude
@@ -262,7 +262,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             
             let noise = noise.perlin(x: xOff, y: 0.0, z: 0.0)
-            var y = (noise * terrain.offset) + terrain.startPoint
+            let mappedNoise = ((min - Calculation.map(noise, 0...1, max...min)) + terrain.startPoint) * terrain.offset
+            var y = mappedNoise//(noise * terrain.offset) + terrain.startPoint
 
             if y < max {
                 y = max
@@ -272,7 +273,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             let current = CGPoint(x: CGFloat(i), y: CGFloat(y))
 
-            let currentPoint = CGPoint(x: current.x, y: self.graphLayer.bounds.maxY - (current.y + self.ellipseHeight))
+            let currentPoint = CGPoint(x: current.x, y: current.y + self.ellipseHeight)
             self.addGraphics(index: i, previousPoint: previousPoint, currentPoint: currentPoint)
             
             previousPoint = currentPoint

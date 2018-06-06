@@ -40,21 +40,21 @@ class Terrain {
             amplitude = 0.8
             break
         case .Islands:
-            startPoint = 0.05 * max
+            startPoint = 0.04 * max
             offset = 40.0
             roughness = 3
-            amplitude = 0.8
+            amplitude = 0.9
             break
         case .Marsh:
-            startPoint = 0.1 * max
-            offset = 35.0
+            startPoint = 0.05 * max
+            offset = 0.2
             roughness = 3
-            amplitude = 0.3
+            amplitude = 0.001
             break
         case .Mountains:
-            startPoint = 0.7 * max
-            offset = 80.0
-            amplitude = 0.7
+            startPoint = 0.5 * max
+            offset = 1.2
+            amplitude = 0.6
             roughness = 5
             break
         case .Plains:
