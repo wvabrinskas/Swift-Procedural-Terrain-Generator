@@ -20,48 +20,45 @@ class TwoDimensionalNoiseView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func start(complete: @escaping (_ layer: CALayer) -> ()) {
-        let frame = self.frame
-        let size = frame.size
-        let bounds = self.bounds
-        DispatchQueue.global().async {
-            UIGraphicsBeginImageContext(size)
-            
-            let noise = Noise()
-            
-            let noiseLayer = CAShapeLayer()
-            noiseLayer.frame = bounds
-            //noiseLayer.backgroundColor = UIColor.brown.cgColor
-            
-            var yOff:Double = 0
-            let inc = 0.005
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        start()
+    }
+    
+    func start() {
+        let noise = Noise()
+        
+        let noiseLayer = CAShapeLayer()
+        noiseLayer.frame = self.frame
 
-            for y in stride(from: 0.0, through: size.height, by: 1.0) {
-                var xOff:Double = 0
+        self.layer.addSublayer(noiseLayer)
 
-                for x in stride(from: 0.0, through: size.width, by: 1.0) {
-                    let newPath = UIBezierPath(rect: CGRect(x: CGFloat(x), y: CGFloat(y), width: 1.0, height: 1.0))
+        var yOff:Double = 0
+        let inc = 0.01
+        
+        for y in stride(from: 0.0, through: self.frame.size.height, by: 1.0) {
+            var xOff:Double = 0
+            
+            for x in stride(from: 0.0, through: self.frame.size.width, by: 1.0) {
+                let newPath = UIBezierPath(rect: CGRect(x: CGFloat(x), y: CGFloat(y), width: 1.0, height: 1.0))
+                
+                let value = noise.perlin(x: xOff, y: yOff, z: 0.0)
+                var alpha:CGFloat = CGFloat(value)
 
-                    var alpha:CGFloat = CGFloat(noise.perlin(x: xOff, y: yOff, z: 0.0)) + 0.5
-                    if alpha > 1.0 {
-                        alpha = 1.0
-                    } else if alpha < 0.0 {
-                        alpha = 0.0
-                    }
+                if alpha > 1.0 {
                     alpha = 1.0
-                    UIColor(red: alpha, green: alpha, blue: alpha, alpha: 1.0).setFill()
-
-                    newPath.fill()
-                    noiseLayer.path = newPath.cgPath
-
-                    xOff += inc
+                } else if alpha < 0.0 {
+                    alpha = 0.0
                 }
-                yOff += inc
+
+                UIColor(red: alpha, green: alpha, blue: alpha, alpha: 1.0).setFill()
+                
+                newPath.fill()
+                noiseLayer.path = newPath.cgPath
+                
+                xOff += inc
             }
-            
-            print("should add layer")
-            UIGraphicsEndImageContext()
-            complete(noiseLayer)
+            yOff += inc
         }
     }
 }
