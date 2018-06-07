@@ -14,70 +14,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var sampleNumberLabel: UILabel!
-
-    @IBOutlet weak var settingsButton: UIButton! {
-        didSet {
-            settingsButton.imageView?.contentMode = .scaleAspectFit
-        }
-    }
-    @IBOutlet weak var settingsLeading: NSLayoutConstraint!
-    @IBOutlet weak var settingsTop: NSLayoutConstraint!
-    
-    @IBOutlet weak var sampleTextField: UITextField! {
-        didSet {
-            sampleTextField.delegate = self
-            sampleTextField.text = "\(501)"
-            sampleTextField.keyboardType = .numberPad
-        }
-    }
-    @IBOutlet weak var steepnessTextField: UITextField!  {
-        didSet {
-            steepnessTextField.delegate = self
-            steepnessTextField.text = "\(30)"
-            steepnessTextField.keyboardType = .numberPad
-
-        }
-    }
-    @IBOutlet weak var hillFactorTextField: UITextField!  {
-        didSet {
-            hillFactorTextField.delegate = self
-            hillFactorTextField.text = "\(10)"
-            hillFactorTextField.keyboardType = .numberPad
-        }
-    }
-    
-    @IBOutlet weak var sharpnessTextField: UITextField! {
-        didSet {
-            sharpnessTextField.delegate = self
-            sharpnessTextField.text = "\(10)"
-            sharpnessTextField.keyboardType = .numberPad
-        }
-    }
-    
-    @IBOutlet weak var settingsView: UIView! {
-        didSet {
-            settingsView.layer.shadowColor = UIColor.black.cgColor
-            settingsView.layer.shadowOffset = CGSize(width: 0.0, height: -4.0)
-            settingsView.layer.shadowRadius = 10.0
-            settingsView.layer.shadowOpacity = 0.8
-            settingsView.clipsToBounds = true
-            settingsView.layer.cornerRadius = 10.0
-            settingsView.alpha = 0.0
-        }
-    }
     
     private lazy var height = self.view.frame.size.height * 0.7
-    
-    private var adjustment:UInt32! {
-        get {
-           return UInt32(steepnessTextField.text ?? "\(30)")!
-        }
-    }
-    private var spacing:CGFloat! {
-        get {
-            return CGFloat(UInt32(sharpnessTextField.text ?? "\(10)")!)
-        }
-    }
     
     private var timer:Timer!
     
@@ -91,12 +29,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
     private var previousColor: CGColor!
     
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        settingsTop.constant = -160.0
-        self.view.addGestureRecognizer(UITapGestureRecognizer.init(target: self, action: #selector(hideKeyboard)))
         
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
@@ -118,11 +53,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
 //        self.view.addSubview(twoD)
     }
     
-    @objc func hideKeyboard() {
-        DispatchQueue.main.async {
-            self.view.endEditing(true)
-        }
-    }
     
     private func clear() {
         self.sampleNumberLabel.text = "0"
@@ -131,11 +61,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.graphLayer.sublayers?.forEach({ (layer) in
             layer.removeFromSuperlayer()
         })
-        self.contentView.subviews.forEach { (subview) in
-            if subview is UILabel {
-                subview.removeFromSuperview()
-            }
-        }
+
     }
     
     private func getColor(point: CGPoint) -> CGColor {
@@ -214,17 +140,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func map(value: Double, minV: Double, maxV:Double, minD: Double, maxD: Double) -> Double {
-        
-        
-        return value
-    }
-    
     func getTerrain(terrainType: Terrain.TerrainType) -> Terrain {
         let max = graphLayer.bounds.maxY
         return Terrain(type: terrainType, maxY: Double(max))
     }
-    
     
     private func startOneDNoise(samples: Int) {
         self.clear()
@@ -239,7 +158,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         let max = Double(graphLayer.bounds.minY)
         let min = Double(graphLayer.bounds.maxY)
         
-        let terrain = getTerrain(terrainType: .Marsh)
+        let terrain = getTerrain(terrainType: .Hills)
 
         let noise = Noise()
         noise.amplitude = terrain.amplitude
@@ -262,7 +181,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             
             let noise = noise.perlin(x: xOff, y: 0.0, z: 0.0)
-            let mappedNoise = ((min - Calculation.map(noise, 0...1, max...min)) + terrain.startPoint) * terrain.offset
+            let mappedNoise = min - (((Calculation.map(noise, 0...1, max...min)) * terrain.offset) + terrain.startPoint)
             var y = mappedNoise//(noise * terrain.offset) + terrain.startPoint
 
             if y < max {
@@ -285,41 +204,5 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
 
-    
-    @IBAction func settingsButtonPressed(_ sender: Any) {
-        var isHidden = false
-        
-        if settingsTop.constant == 40.0 {
-            settingsTop.constant = -160.0
-            isHidden = true
-            settingsButton.setImage(#imageLiteral(resourceName: "Hamburger_icon.svg"), for: .normal)
-        } else {
-            isHidden = false
-            settingsTop.constant = 40.0
-            settingsButton.setImage(#imageLiteral(resourceName: "delete-sign"), for: .normal)
-        }
-        
-        UIView.animate(withDuration: 0.38, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.4, options: .curveEaseIn, animations: {
-            self.settingsView.alpha = isHidden ? 0.0 : 1.0
-            self.view.layoutIfNeeded()
-        }, completion: nil)
-    }
-    
-    @IBAction func startTapped(_ sender: Any) {
-       self.scrollView.scrollRectToVisible(CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.contentView.frame.size.height), animated: true)
-        timer.invalidate()
-        view.endEditing(true)
-        startOneDNoise(samples:  Int(sampleTextField.text ?? "\(500)")!)
-        settingsButtonPressed(self)
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.clear()
-    }
 }
 
