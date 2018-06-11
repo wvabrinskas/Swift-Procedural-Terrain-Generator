@@ -48,9 +48,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
-        startOneDNoise(samples: 2000)
-//        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
-//        self.view.addSubview(twoD)
+        //startOneDNoise(samples: 2000)
+        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+        self.view.addSubview(twoD)
     }
     
     
@@ -64,42 +64,17 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     }
     
-    private func getColor(point: CGPoint) -> CGColor {
-        
-        let terrainColors:[CGFloat : CGColor] = [
-                             0.2 : UIColor.white.cgColor,
-                             0.5 : UIColor.lightGray.cgColor,
-                             0.7 : UIColor(red: 179.0/255.0, green: 114.0/255.0, blue: 25.0/255.0, alpha: 1.0).cgColor,
-                             0.85: UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0).cgColor,
-                             0.9 : UIColor(red: 67.0/255.0, green: 180.0/255.0, blue: 212.0/255.0, alpha: 1.0).cgColor,
-                             1.0 : UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0).cgColor
-                            ]
-        
-        let sorted = terrainColors.sorted(by: { $0.key < $1.key} )
-        
-        for terrain in sorted {
-            let y = point.y
-            let heightValue = self.graphLayer.bounds.height * terrain.key
-            
-            if y < heightValue {
-                return terrain.value
-            }
-        }
-        
-        return UIColor.white.cgColor
-    }
-    
     private func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
-        
+        let terrainColor = Terrain.getColor(value: Double(currentPoint.y), maxValue: self.graphLayer.frame.size.height).cgColor
         let shouldGetNewLine:Bool = {
-            if previousColor == self.getColor(point: currentPoint) {
+            if previousColor == terrainColor {
                 return false
             }
             return true
         }()
         
         var line = CGMutablePath()
-
+ 
         if !shouldGetNewLine {
             line = previousLine
         }
@@ -113,7 +88,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
         lineLayer.lineWidth = 2.0
         lineLayer.lineCap = kCALineCapRound
-        lineLayer.strokeColor = self.getColor(point: currentPoint)
+        lineLayer.strokeColor = terrainColor
         lineLayer.path = line
         
         if shouldGetNewLine {
@@ -121,13 +96,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         
         previousLineLayer = lineLayer
-        previousColor = self.getColor(point: currentPoint)
+        previousColor = terrainColor
         previousLine = line
 
         let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
         let ovalLayer = CAShapeLayer()
 
-        ovalLayer.fillColor = self.getColor(point: currentPoint)
+        ovalLayer.fillColor = terrainColor
         ovalLayer.strokeColor = UIColor.clear.cgColor
         ovalLayer.path = oval.cgPath
         
