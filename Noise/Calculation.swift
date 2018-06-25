@@ -26,7 +26,8 @@ class Calculation {
         let desiredUpper = desiredRange.upperBound
         let desiredLower = desiredRange.lowerBound
         
-        let newVal = (number - origLower) / (origUpper - origLower) * (desiredUpper - desiredLower) + desiredLower
+        let part1 = (number - origLower) / (origUpper - origLower)
+        let newVal = part1 * (desiredUpper - desiredLower) + desiredLower
         
         if desiredLower < desiredUpper {
             return Calculation.constrain(newVal, desiredLower, desiredUpper)
@@ -43,7 +44,8 @@ class Calculation {
         let desiredUpper = desiredRange.upperBound
         let desiredLower = desiredRange.lowerBound
         
-        let newVal = (number - origLower) / (origUpper - origLower) * (desiredUpper - desiredLower) + desiredLower
+        let part1 = (number - origLower) / (origUpper - origLower)
+        let newVal =  part1 * (desiredUpper - desiredLower) + desiredLower
         
         if desiredLower < desiredUpper {
             return Calculation.constrain(newVal, desiredLower, desiredUpper)

@@ -8,11 +8,9 @@
 
 import UIKit
 import MetalKit
-
+import QuartzCore
 
 class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
-
-    
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var sampleNumberLabel: UILabel!
@@ -34,10 +32,23 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     var buffer: MDLMeshBuffer!
     var light: MDLLight!
     let size = CGSize(width: 300, height: 300)
-    
-    var metalLayer: CAMetalLayer!
-    var vertexBuffer: MTLBuffer!
+    var pipelineState: MTLRenderPipelineState!
+    var commandQueue: MTLCommandQueue!
+    var gfxTimer: CADisplayLink!
 
+    var metalLayer: CAMetalLayer!
+    var objectToDraw: Shape!
+    var projectionMatrix: float4x4!
+    var worldModelMatrix = float4x4()
+
+    lazy var mtkView: MTKView! =  {
+        let metalView = MTKView(frame: self.graphLayer.frame)
+        metalView.delegate = self
+        metalView.preferredFramesPerSecond = 60
+        metalView.clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
+        return metalView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -45,37 +56,54 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
         self.contentView.layer.addSublayer(graphLayer)
-        
+
         run3DRender()
         
     }
     
     private func run3DRender() {
-        
+        self.view.addSubview(mtkView)
+
         let device = MTLCreateSystemDefaultDevice()!
         
-        let vertexData:[Float] = [
-            0.0, 1.0, 0.0,
-            -1.0, -1.0, 0.0,
-            1.0, -1.0, 0.0]
+        mtkView.device = device
         
-        metalLayer = CAMetalLayer()
-        metalLayer.device = device
-        metalLayer.pixelFormat = .bgra8Unorm
-        metalLayer.framebufferOnly = true
-        metalLayer.frame = view.layer.frame
-        view.layer.addSublayer(metalLayer)
+        objectToDraw = Shape(device: device, xPoints: 60, yPoints: 60)
+
+        let defaultLibrary = device.makeDefaultLibrary()!
+        let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
+        let vertexProgram = defaultLibrary.makeFunction(name: "basic_vertex")
+
+        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        pipelineStateDescriptor.vertexFunction = vertexProgram
+        pipelineStateDescriptor.fragmentFunction = fragmentProgram
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+
+        pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         
-        let dataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])
-        vertexBuffer = device.makeBuffer(bytes: vertexData, length: dataSize, options: []) 
+        commandQueue = device.makeCommandQueue()
+        
+        projectionMatrix = float4x4.makePerspectiveViewAngle(float4x4.degrees(toRad: 85.0),
+                                                             aspectRatio: Float(graphLayer.bounds.size.width / graphLayer.bounds.size.height),
+                                                             nearZ: 0.01, farZ: 100.0)
+        
+        worldModelMatrix.translate(0.0, y: 0.0, z: -7.0)
+        worldModelMatrix.rotateAroundX(Matrix4.degrees(toRad: 25), y: 0.0, z: 0.0)
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        
+
     }
     
     func draw(in view: MTKView) {
+        render(view.currentDrawable)
+    }
+    
+    func render(_ drawable: CAMetalDrawable?) {
+        guard let drawable = drawable else { return }
 
+        objectToDraw.render(commandQueue: commandQueue, pipelineState: pipelineState, drawable: drawable, parentModelViewMatrix: worldModelMatrix, projectionMatrix: projectionMatrix ,clearColor: nil)
+        
     }
     
     override func didReceiveMemoryWarning() {

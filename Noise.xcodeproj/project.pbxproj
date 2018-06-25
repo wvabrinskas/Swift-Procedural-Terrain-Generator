@@ -15,6 +15,13 @@
 		50286B3120C828AE00BF98D9 /* Calculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50286B3020C828AE00BF98D9 /* Calculation.swift */; };
 		503FBF4320C6EC2900CFA894 /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503FBF4220C6EC2900CFA894 /* Terrain.swift */; };
 		5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */; };
+		50921E5A20E171AA00068491 /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E5920E171AA00068491 /* Shape.swift */; };
+		50921E5C20E171CA00068491 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E5B20E171CA00068491 /* Node.swift */; };
+		50921E5E20E171E200068491 /* Vertex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E5D20E171E200068491 /* Vertex.swift */; };
+		50921E6220E174A700068491 /* Matrix4.m in Sources */ = {isa = PBXBuildFile; fileRef = 50921E6120E174A700068491 /* Matrix4.m */; };
+		50921E6420E17E8800068491 /* float4x4+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E6320E17E8800068491 /* float4x4+extensions.swift */; };
+		50921E6620E184D900068491 /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E6520E184D900068491 /* Light.swift */; };
+		50921E6820E1863900068491 /* BufferProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50921E6720E1863800068491 /* BufferProvider.swift */; };
 		509D409A20B33ADF009D2440 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 509D409920B33ADF009D2440 /* Main.storyboard */; };
 		91B7B29320DD3D7500F8C536 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 91B7B29220DD3D7500F8C536 /* Shader.metal */; };
 /* End PBXBuildFile section */
@@ -30,6 +37,15 @@
 		50286B3020C828AE00BF98D9 /* Calculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculation.swift; sourceTree = "<group>"; };
 		503FBF4220C6EC2900CFA894 /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoDimensionalNoiseView.swift; sourceTree = "<group>"; };
+		50921E5920E171AA00068491 /* Shape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shape.swift; sourceTree = "<group>"; };
+		50921E5B20E171CA00068491 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		50921E5D20E171E200068491 /* Vertex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vertex.swift; sourceTree = "<group>"; };
+		50921E5F20E174A500068491 /* Noise-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Noise-Bridging-Header.h"; sourceTree = "<group>"; };
+		50921E6020E174A700068491 /* Matrix4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4.h; sourceTree = "<group>"; };
+		50921E6120E174A700068491 /* Matrix4.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4.m; sourceTree = "<group>"; };
+		50921E6320E17E8800068491 /* float4x4+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "float4x4+extensions.swift"; sourceTree = "<group>"; };
+		50921E6520E184D900068491 /* Light.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
+		50921E6720E1863800068491 /* BufferProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BufferProvider.swift; sourceTree = "<group>"; };
 		509D409920B33ADF009D2440 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		91B7B29220DD3D7500F8C536 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -65,6 +81,15 @@
 			isa = PBXGroup;
 			children = (
 				91B7B29220DD3D7500F8C536 /* Shader.metal */,
+				50921E6320E17E8800068491 /* float4x4+extensions.swift */,
+				50921E5F20E174A500068491 /* Noise-Bridging-Header.h */,
+				50921E6020E174A700068491 /* Matrix4.h */,
+				50921E6120E174A700068491 /* Matrix4.m */,
+				50921E6520E184D900068491 /* Light.swift */,
+				50921E5D20E171E200068491 /* Vertex.swift */,
+				50921E6720E1863800068491 /* BufferProvider.swift */,
+				50921E5B20E171CA00068491 /* Node.swift */,
+				50921E5920E171AA00068491 /* Shape.swift */,
 				5003473420AF43E4002743F9 /* AppDelegate.swift */,
 				5003473620AF43E4002743F9 /* ViewController.swift */,
 				5020F25C20AF7354001F9F12 /* Noise.swift */,
@@ -111,6 +136,7 @@
 				TargetAttributes = {
 					5003473020AF43E4002743F9 = {
 						CreatedOnToolsVersion = 9.3.1;
+						LastSwiftMigration = 0940;
 					};
 				};
 			};
@@ -153,10 +179,17 @@
 				5003473720AF43E4002743F9 /* ViewController.swift in Sources */,
 				50286B3120C828AE00BF98D9 /* Calculation.swift in Sources */,
 				5020F25D20AF7354001F9F12 /* Noise.swift in Sources */,
+				50921E5E20E171E200068491 /* Vertex.swift in Sources */,
+				50921E5C20E171CA00068491 /* Node.swift in Sources */,
 				503FBF4320C6EC2900CFA894 /* Terrain.swift in Sources */,
 				5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */,
+				50921E6620E184D900068491 /* Light.swift in Sources */,
+				50921E6820E1863900068491 /* BufferProvider.swift in Sources */,
 				91B7B29320DD3D7500F8C536 /* Shader.metal in Sources */,
 				5003473520AF43E4002743F9 /* AppDelegate.swift in Sources */,
+				50921E6420E17E8800068491 /* float4x4+extensions.swift in Sources */,
+				50921E6220E174A700068491 /* Matrix4.m in Sources */,
+				50921E5A20E171AA00068491 /* Shape.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,6 +325,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 24H8222GR4;
 				INFOPLIST_FILE = Noise/Info.plist;
@@ -301,6 +335,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = williamvabrinskas.Noise;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Noise/Noise-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -310,6 +346,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 24H8222GR4;
 				INFOPLIST_FILE = Noise/Info.plist;
@@ -319,6 +356,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = williamvabrinskas.Noise;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Noise/Noise-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
