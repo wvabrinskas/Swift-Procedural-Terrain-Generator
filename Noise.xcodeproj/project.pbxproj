@@ -16,6 +16,7 @@
 		503FBF4320C6EC2900CFA894 /* Terrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503FBF4220C6EC2900CFA894 /* Terrain.swift */; };
 		5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */; };
 		509D409A20B33ADF009D2440 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 509D409920B33ADF009D2440 /* Main.storyboard */; };
+		91B7B29320DD3D7500F8C536 /* Shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 91B7B29220DD3D7500F8C536 /* Shader.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		503FBF4220C6EC2900CFA894 /* Terrain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terrain.swift; sourceTree = "<group>"; };
 		5070C28120B7051000FA7E01 /* TwoDimensionalNoiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoDimensionalNoiseView.swift; sourceTree = "<group>"; };
 		509D409920B33ADF009D2440 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		91B7B29220DD3D7500F8C536 /* Shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shader.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 		5003473320AF43E4002743F9 /* Noise */ = {
 			isa = PBXGroup;
 			children = (
+				91B7B29220DD3D7500F8C536 /* Shader.metal */,
 				5003473420AF43E4002743F9 /* AppDelegate.swift */,
 				5003473620AF43E4002743F9 /* ViewController.swift */,
 				5020F25C20AF7354001F9F12 /* Noise.swift */,
@@ -152,6 +155,7 @@
 				5020F25D20AF7354001F9F12 /* Noise.swift in Sources */,
 				503FBF4320C6EC2900CFA894 /* Terrain.swift in Sources */,
 				5070C28220B7051000FA7E01 /* TwoDimensionalNoiseView.swift in Sources */,
+				91B7B29320DD3D7500F8C536 /* Shader.metal in Sources */,
 				5003473520AF43E4002743F9 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

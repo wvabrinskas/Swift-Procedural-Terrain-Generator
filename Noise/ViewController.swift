@@ -7,9 +7,11 @@
 //
 
 import UIKit
+import MetalKit
 
 
-class ViewController: UIViewController, UITextFieldDelegate {
+class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
+
     
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
@@ -28,6 +30,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
     private var previousLineLayer: CAShapeLayer!
     private var previousColor: CGColor!
     
+    var allocator:MTKMeshBufferAllocator!
+    var buffer: MDLMeshBuffer!
+    var light: MDLLight!
+    let size = CGSize(width: 300, height: 300)
+    
+    var metalLayer: CAMetalLayer!
+    var vertexBuffer: MTLBuffer!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,9 +45,39 @@ class ViewController: UIViewController, UITextFieldDelegate {
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
         self.contentView.layer.addSublayer(graphLayer)
+        
+        run3DRender()
+        
+    }
+    
+    private func run3DRender() {
+        
+        let device = MTLCreateSystemDefaultDevice()!
+        
+        let vertexData:[Float] = [
+            0.0, 1.0, 0.0,
+            -1.0, -1.0, 0.0,
+            1.0, -1.0, 0.0]
+        
+        metalLayer = CAMetalLayer()
+        metalLayer.device = device
+        metalLayer.pixelFormat = .bgra8Unorm
+        metalLayer.framebufferOnly = true
+        metalLayer.frame = view.layer.frame
+        view.layer.addSublayer(metalLayer)
+        
+        let dataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])
+        vertexBuffer = device.makeBuffer(bytes: vertexData, length: dataSize, options: []) 
+    }
+    
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        
+    }
+    
+    func draw(in view: MTKView) {
 
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -49,8 +88,9 @@ class ViewController: UIViewController, UITextFieldDelegate {
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
         //startOneDNoise(samples: 2000)
-        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
-        self.view.addSubview(twoD)
+//        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+//        twoD.type = .Mountains
+//        self.view.addSubview(twoD)
     }
     
     

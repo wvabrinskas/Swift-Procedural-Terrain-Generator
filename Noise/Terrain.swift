@@ -27,6 +27,7 @@ class Terrain {
         
         let deepBlue = UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0)
         let lightBlue = UIColor(red: 67.0/255.0, green: 180.0/255.0, blue: 212.0/255.0, alpha: 1.0)
+        let sand = UIColor(red: 221.0/255.0, green: 200.0/255.0, blue: 146.0/255.0, alpha: 1.0)
         let green = UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0)
         let brown = UIColor(red: 179.0/255.0, green: 114.0/255.0, blue: 25.0/255.0, alpha: 1.0)
         let gray = UIColor.lightGray
@@ -36,7 +37,8 @@ class Terrain {
             ["range" : 0.0...0.2  , "colors" : (min: white, max: gray)],
             ["range" : 0.2...0.5 , "colors" : (min: gray, max: brown)],
             ["range" : 0.5...0.7 , "colors" : (min: brown, max: green)],
-            ["range" : 0.7...0.85 , "colors" : (min: green, max: lightBlue)],
+            ["range" : 0.7...0.8 , "colors" : (min: green, max: sand)],
+            ["range" : 0.8...0.85 , "colors" : (min: sand, max: lightBlue)],
             ["range" : 0.85...0.9 , "colors" : (min: lightBlue, max: deepBlue)],
             ["range" : 0.9...1.0 , "colors" : (min: deepBlue, max: deepBlue)]
         ]
@@ -116,7 +118,7 @@ class Terrain {
             break
         case .Islands:
             startPoint = 0.03 * max
-            offset = 0.3
+            offset = 0.34
             roughness = 12
             break
         case .Marsh:
