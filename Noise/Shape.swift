@@ -29,14 +29,14 @@ class Shape: Node {
 
             for x in 0..<xPoints {
                 let floatX = Float(x)
-                let mappedX = Calculation.map(floatX, 0.0...Float(xPoints), 0.0...1.0)
+                let mappedX = Calculation.map(floatX, 0.0...Float(xPoints), -1.0...1.0)
                 
                 let floatZ = Float(z)
-                let mappedZ = 1.0 - Calculation.map(floatZ, 0.0...Float(yPoints), 0.0...1.0)
+                let mappedZ = Calculation.map(floatZ, 0.0...Float(yPoints), -1.0...1.0)
                 
                 let y = noise.perlin(x: xOff, y: yOff, z: 0.0)
                 
-                //let mappedZ = Float(Calculation.map(z, 0.0...1.0, -1.0...1.0))
+                let mappedY = Float(Calculation.map(y, 0.0...1.0, -1.0...1.0))
                 
                 var a:CGFloat = 0.0
                 var r: CGFloat = 0.0
@@ -45,7 +45,7 @@ class Shape: Node {
             
                 Terrain.getColor(value: y, maxValue: 1.0).getRed(&r, green: &g, blue: &b, alpha: &a)
                 
-                let vertex = Vertex(x: mappedX, y: Float(y), z: mappedZ, r: Float(r), g: Float(g), b: Float(b), a: Float(a))
+                let vertex = Vertex(x: mappedX, y: mappedY, z: mappedZ, r: Float(r), g: Float(g), b: Float(b), a: Float(a))
                 print(vertex)
                 verticesArray.append(vertex)
 
