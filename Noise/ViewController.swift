@@ -91,17 +91,17 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         worldModelMatrix.rotateAroundX(float4x4.degrees(toRad: 35), y: 0.0, z: 0.0)
         
         mtkView.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:))))
-        
+        mtkView.addGestureRecognizer(UIPinchGestureRecognizer.init(target: self, action: #selector(pinch(sender:))))
+
         objectToDraw.positionZ = -2.15
     }
     
     @objc func pan(sender: UIPanGestureRecognizer) {
         let velocity = sender.velocity(in: mtkView)
+        
         if velocity.x > 0 {
-            //right
             objectToDraw.rotationY += 0.1
         } else if velocity.x < 0 {
-            //left
             objectToDraw.rotationY -= 0.1
         }
         
@@ -109,6 +109,15 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
             objectToDraw.rotationX += 0.1
         } else if velocity.y < 0 {
             objectToDraw.rotationX -= 0.1
+        }
+        
+    }
+    
+    @objc func pinch(sender: UIPinchGestureRecognizer) {
+        if sender.scale > 1.0 {
+            objectToDraw.positionZ += 0.1
+        } else {
+            objectToDraw.positionZ -= 0.1
         }
     }
     
