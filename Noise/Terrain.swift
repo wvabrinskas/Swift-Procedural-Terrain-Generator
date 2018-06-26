@@ -17,6 +17,7 @@ class Terrain {
     public var type: TerrainType!
     public var amplitude: Double!
     public var roughness: Int!
+    public var cameraStartPoint: Double!
     
     enum TerrainType:Int {
         case Plains, Ocean, Hills, Mountains, Marsh, Islands
@@ -76,6 +77,39 @@ class Terrain {
         
     }
     
+    public class func get3DColor(value: Double, maxValue: CGFloat) -> UIColor {
+        let deepBlue = UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0)
+        let lightBlue = UIColor(red: 67.0/255.0, green: 180.0/255.0, blue: 212.0/255.0, alpha: 1.0)
+        let sand = UIColor(red: 221.0/255.0, green: 200.0/255.0, blue: 146.0/255.0, alpha: 1.0)
+        let green = UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0)
+        let brown = UIColor(red: 179.0/255.0, green: 114.0/255.0, blue: 25.0/255.0, alpha: 1.0)
+        let gray = UIColor.lightGray
+        let white = UIColor.white
+        
+        let terrainColors:[Double : UIColor] = [
+            0.2 : white,
+            0.3 : gray,
+            0.5 : brown,
+            0.75: green,
+            0.8 : sand,
+            0.9 : lightBlue,
+            1.0 : deepBlue
+        ]
+        
+        let sorted = terrainColors.sorted(by: { $0.key < $1.key} )
+        
+        for terrain in sorted {
+            let heightValue = Double(maxValue) * terrain.key
+            
+            if value < heightValue {
+                return terrain.value
+            }
+        }
+        
+        return UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0)
+    }
+    
+    
     public class func getColor(value: Double, maxValue: CGFloat) -> UIColor {
         
         let terrainColors:[Double : UIColor] = [
@@ -100,7 +134,7 @@ class Terrain {
         return UIColor(red: 36.0/255.0, green: 95.0/255.0, blue: 217.0/255.0, alpha: 1.0)
     }
     
-    init(type: TerrainType, maxY: Double) {
+    init(type: TerrainType, maxY: Double, cameraMax: Double) {
         self.type = type
         let max = maxY
         amplitude = 0.4
@@ -108,31 +142,37 @@ class Terrain {
         switch type {
         case .Hills:
             startPoint = 0.20 * max
+            cameraStartPoint = 0.20 * cameraMax
             offset = 0.4
             roughness = 8
             break
         case .Ocean:
             startPoint = 0.03 * max
+            cameraStartPoint = 0.03 * cameraMax
             offset = 0.1
             roughness = 4
             break
         case .Islands:
             startPoint = 0.03 * max
+            cameraStartPoint = 0.03 * cameraMax
             offset = 0.34
             roughness = 12
             break
         case .Marsh:
             startPoint = 0.06 * max
+            cameraStartPoint = 0.06 * cameraMax
             offset = 0.2
             roughness = 8
             break
         case .Mountains:
             startPoint = 0.5 * max
+            cameraStartPoint = 0.5 * cameraMax
             offset = 1.01
             roughness = 12
             break
         case .Plains:
             startPoint = 0.2 * max
+            cameraStartPoint = 0.2 * cameraMax
             offset = 0.2
             roughness = 8
             break

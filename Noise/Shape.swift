@@ -11,9 +11,7 @@ import MetalKit
 
 class Shape: Node {
     
-    init(device: MTLDevice, depth: Double, renderSize: CGSize, scale: Double) {
-        
-        let terrain = Terrain(type: .Islands, maxY: 1.0)
+    init(device: MTLDevice, depth: Double, width: Double, scale: Double, terrain: Terrain) {
         
         var verticesArray = [[Vertex]]()
 
@@ -22,30 +20,33 @@ class Shape: Node {
         noise.octaves = terrain.roughness
         
         var zOff:Double = 0
-        let inc = 0.06
+        let inc = 0.05
         
         var rowVerticies = [Vertex]()
         
         for z in stride(from: 0.0, through: depth, by: scale) {
             var xOff:Double = 0
             
-            for x in stride(from: 0.0, through: Double(renderSize.width), by: scale) {
+            for x in stride(from: 0.0, through: width, by: scale) {
+                let mapScale: ClosedRange<Float> = -5.0...5.0
+                
                 let floatX = Float(x)
-                let mappedX = Calculation.map(floatX, 0.0...Float(renderSize.width), -2.0...2.0)
+                let mappedX = Calculation.map(floatX, 0.0...Float(width), mapScale)
                 
                 let floatZ = Float(z)
-                let mappedZ = Calculation.map(floatZ, 0.0...Float(depth), -2.0...2.0)
+                let mappedZ = Calculation.map(floatZ, 0.0...Float(depth), mapScale)
                 
-                let y = noise.perlin(x: xOff, y: 0.0, z: zOff)
+                let y = (noise.perlin(x: xOff, y: 0.0, z: zOff) * terrain.offset) + terrain.startPoint
                 
-                let mappedY = Float(Calculation.map(y, 0.0...1.0, -2.0...2.0))
+                let floatY = Float(y)
+                let mappedY = Calculation.map(floatY, 0.0...1.0, mapScale)
                 
                 var a:CGFloat = 0.0
                 var r: CGFloat = 0.0
                 var g: CGFloat = 0.0
                 var b: CGFloat = 0.0
                 
-                Terrain.getColor(value: y, maxValue: 1.0).getRed(&r, green: &g, blue: &b, alpha: &a)
+                Terrain.get3DColor(value: 1.0 - y, maxValue: 1.0).getRed(&r, green: &g, blue: &b, alpha: &a)
                 
                 let vertex = Vertex(x: mappedX, y: mappedY, z: mappedZ, r: Float(r), g: Float(g), b: Float(b), a: Float(a), nX: mappedX, nY: mappedY, nZ: mappedZ)
 
@@ -68,9 +69,14 @@ class Shape: Node {
                 let current = verticesArray[z][x]
                 let right = verticesArray[z][x + 1]
                 let top = verticesArray[z + 1][x]
+                let topRight = verticesArray[z + 1][x + 1]
                 
                 triplets.append(current)
+                triplets.append(top)
                 triplets.append(right)
+                
+                triplets.append(right)
+                triplets.append(topRight)
                 triplets.append(top)
             }
         }

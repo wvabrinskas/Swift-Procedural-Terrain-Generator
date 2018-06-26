@@ -68,7 +68,9 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         
         mtkView.device = device
         
-        objectToDraw = Shape(device: device, depth: 100.0, renderSize: graphLayer.bounds.size, scale: 10.0)
+        let terrain = Terrain(type: .Mountains, maxY: 1.0, cameraMax: 5.0)
+
+        objectToDraw = Shape(device: device, depth: 500.0, width: 1500.0, scale: 30.0, terrain: terrain)
         
         let defaultLibrary = device.makeDefaultLibrary()!
         let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
@@ -78,6 +80,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         pipelineStateDescriptor.vertexFunction = vertexProgram
         pipelineStateDescriptor.fragmentFunction = fragmentProgram
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        //pipelineStateDescriptor.maxTessellationFactor = 64
         
         pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         
@@ -87,13 +90,15 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
                                                              aspectRatio: Float(graphLayer.bounds.size.width / graphLayer.bounds.size.height),
                                                              nearZ: 0.0, farZ: 100.0)
         
-        worldModelMatrix.translate(0.0, y: -0.5, z: -0.5)
+        worldModelMatrix.translate(0.0, y: -0.5, z: -5.1)
         worldModelMatrix.rotateAroundX(float4x4.degrees(toRad: 35), y: 0.0, z: 0.0)
         
         mtkView.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:))))
         mtkView.addGestureRecognizer(UIPinchGestureRecognizer.init(target: self, action: #selector(pinch(sender:))))
 
         objectToDraw.positionZ = -2.15
+        objectToDraw.positionY += Float(-terrain.cameraStartPoint)
+        objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.5, direction: (1.0, Float(terrain.cameraStartPoint), -1.0), diffuseIntensity: 0.1)
     }
     
     @objc func pan(sender: UIPanGestureRecognizer) {
@@ -215,7 +220,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     
     func getTerrain(terrainType: Terrain.TerrainType) -> Terrain {
         let max = graphLayer.bounds.maxY
-        return Terrain(type: terrainType, maxY: Double(max))
+        return Terrain(type: terrainType, maxY: Double(max), cameraMax: 0.0)
     }
     
     private func startOneDNoise(samples: Int) {

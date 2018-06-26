@@ -25,7 +25,7 @@ class TwoDimensionalNoiseView: UIView {
     
     func getTerrain(terrainType: Terrain.TerrainType) -> Terrain {
         let max = 1.0
-        return Terrain(type: terrainType, maxY: Double(max))
+        return Terrain(type: terrainType, maxY: Double(max), cameraMax: 0.0)
     }
     
     func start() {
