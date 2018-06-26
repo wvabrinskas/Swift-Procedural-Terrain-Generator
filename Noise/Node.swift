@@ -26,7 +26,7 @@ class Node {
     var rotationY: Float = 0.0
     var rotationZ: Float = 0.0
     var scale: Float     = 1.0
-    let light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.2)
+    let light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.8, direction: (-1.0, -1.0, -1.0), diffuseIntensity: 0.2)
     var bufferProvider: BufferProvider!
 
     init(name: String, vertices: Array<Vertex>, device: MTLDevice) {

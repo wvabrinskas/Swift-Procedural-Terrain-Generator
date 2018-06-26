@@ -47,7 +47,7 @@ class Shape: Node {
                 
                 Terrain.getColor(value: y, maxValue: 1.0).getRed(&r, green: &g, blue: &b, alpha: &a)
                 
-                let vertex = Vertex(x: mappedX, y: mappedY, z: mappedZ, r: Float(r), g: Float(g), b: Float(b), a: Float(a))
+                let vertex = Vertex(x: mappedX, y: mappedY, z: mappedZ, r: Float(r), g: Float(g), b: Float(b), a: Float(a), nX: mappedX, nY: mappedY, nZ: mappedZ)
 
                 rowVerticies.append(vertex)
                 
