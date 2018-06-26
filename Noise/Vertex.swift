@@ -16,4 +16,8 @@ struct Vertex {
         return [x,y,z,r,g,b,a]
     }
     
+    static func size() -> Int {       // 3
+        return MemoryLayout<Float>.size * 7
+    }
+    
 }

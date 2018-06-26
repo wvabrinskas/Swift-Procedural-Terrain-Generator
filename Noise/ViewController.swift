@@ -23,7 +23,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     private let ellipseHeight:CGFloat = 1.0
     
     private let graphLayer = CAShapeLayer()
-
+    
     private var previousLine: CGMutablePath!
     private var previousLineLayer: CAShapeLayer!
     private var previousColor: CGColor!
@@ -35,12 +35,12 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     var pipelineState: MTLRenderPipelineState!
     var commandQueue: MTLCommandQueue!
     var gfxTimer: CADisplayLink!
-
+    
     var metalLayer: CAMetalLayer!
     var objectToDraw: Shape!
     var projectionMatrix: float4x4!
     var worldModelMatrix = float4x4()
-
+    
     lazy var mtkView: MTKView! =  {
         let metalView = MTKView(frame: self.graphLayer.frame)
         metalView.delegate = self
@@ -56,43 +56,64 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         graphLayer.backgroundColor = UIColor(red: 44.0/255.0, green: 48.0/255.0, blue: 49.0/255.0, alpha: 1.0).cgColor
         graphLayer.frame = CGRect(x: 0, y: self.view.frame.midY - (height / 2.0), width: self.view.frame.size.width, height: height)
         self.contentView.layer.addSublayer(graphLayer)
-
+        
         run3DRender()
         
     }
     
     private func run3DRender() {
         self.view.addSubview(mtkView)
-
+        
         let device = MTLCreateSystemDefaultDevice()!
         
         mtkView.device = device
         
-        objectToDraw = Shape(device: device, xPoints: 60, yPoints: 60)
-
+        objectToDraw = Shape(device: device, depth: 100.0, renderSize: graphLayer.bounds.size, scale: 10.0)
+        
         let defaultLibrary = device.makeDefaultLibrary()!
         let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
         let vertexProgram = defaultLibrary.makeFunction(name: "basic_vertex")
-
+        
         let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
         pipelineStateDescriptor.vertexFunction = vertexProgram
         pipelineStateDescriptor.fragmentFunction = fragmentProgram
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-
+        
         pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         
         commandQueue = device.makeCommandQueue()
         
         projectionMatrix = float4x4.makePerspectiveViewAngle(float4x4.degrees(toRad: 85.0),
                                                              aspectRatio: Float(graphLayer.bounds.size.width / graphLayer.bounds.size.height),
-                                                             nearZ: 0.01, farZ: 100.0)
+                                                             nearZ: 0.0, farZ: 100.0)
         
-        worldModelMatrix.translate(0.0, y: 0.0, z: -7.0)
-        worldModelMatrix.rotateAroundX(Matrix4.degrees(toRad: 25), y: 0.0, z: 0.0)
+        worldModelMatrix.translate(0.0, y: -0.5, z: -0.5)
+        worldModelMatrix.rotateAroundX(float4x4.degrees(toRad: 35), y: 0.0, z: 0.0)
+        
+        mtkView.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:))))
+        
+        objectToDraw.positionZ = -2.15
+    }
+    
+    @objc func pan(sender: UIPanGestureRecognizer) {
+        let velocity = sender.velocity(in: mtkView)
+        if velocity.x > 0 {
+            //right
+            objectToDraw.rotationY += 0.1
+        } else if velocity.x < 0 {
+            //left
+            objectToDraw.rotationY -= 0.1
+        }
+        
+        if velocity.y > 0 {
+            objectToDraw.rotationX += 0.1
+        } else if velocity.y < 0 {
+            objectToDraw.rotationX -= 0.1
+        }
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-
+        
     }
     
     func draw(in view: MTKView) {
@@ -101,7 +122,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     
     func render(_ drawable: CAMetalDrawable?) {
         guard let drawable = drawable else { return }
-
+        
         objectToDraw.render(commandQueue: commandQueue, pipelineState: pipelineState, drawable: drawable, parentModelViewMatrix: worldModelMatrix, projectionMatrix: projectionMatrix ,clearColor: nil)
         
     }
@@ -110,26 +131,26 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         contentView.backgroundColor = .clear
         view.backgroundColor = .clear
         //startOneDNoise(samples: 2000)
-//        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
-//        twoD.type = .Mountains
-//        self.view.addSubview(twoD)
+        //        let twoD = TwoDimensionalNoiseView(frame: graphLayer.frame)
+        //        twoD.type = .Mountains
+        //        self.view.addSubview(twoD)
     }
     
     
     private func clear() {
         self.sampleNumberLabel.text = "0"
-
+        
         timer?.invalidate()
         self.graphLayer.sublayers?.forEach({ (layer) in
             layer.removeFromSuperlayer()
         })
-
+        
     }
     
     private func addGraphics(index: Int, previousPoint: CGPoint?, currentPoint: CGPoint) {
@@ -142,7 +163,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         }()
         
         var line = CGMutablePath()
- 
+        
         if !shouldGetNewLine {
             line = previousLine
         }
@@ -153,7 +174,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         }
         
         let lineLayer = !shouldGetNewLine ? previousLineLayer! : CAShapeLayer()
-
+        
         lineLayer.lineWidth = 2.0
         lineLayer.lineCap = kCALineCapRound
         lineLayer.strokeColor = terrainColor
@@ -166,10 +187,10 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         previousLineLayer = lineLayer
         previousColor = terrainColor
         previousLine = line
-
+        
         let oval = UIBezierPath(ovalIn: CGRect(x:currentPoint.x, y: currentPoint.y, width: self.ellipseWidth, height: self.ellipseHeight))
         let ovalLayer = CAShapeLayer()
-
+        
         ovalLayer.fillColor = terrainColor
         ovalLayer.strokeColor = UIColor.clear.cgColor
         ovalLayer.path = oval.cgPath
@@ -190,19 +211,19 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     
     private func startOneDNoise(samples: Int) {
         self.clear()
-
+        
         var i = 0
         var xOff = 0.0
         
         self.scrollView.contentSize = CGSize(width: CGFloat(samples) + 107, height: self.scrollView.contentSize.height)
-
+        
         var previousPoint: CGPoint?
-
+        
         let max = Double(graphLayer.bounds.minY)
         let min = Double(graphLayer.bounds.maxY)
         
         let terrain = getTerrain(terrainType: .Hills)
-
+        
         let noise = Noise()
         noise.amplitude = terrain.amplitude
         noise.octaves = terrain.roughness
@@ -226,7 +247,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
             let noise = noise.perlin(x: xOff, y: 0.0, z: 0.0)
             let mappedNoise = min - (((Calculation.map(noise, 0...1, max...min)) * terrain.offset) + terrain.startPoint)
             var y = mappedNoise//(noise * terrain.offset) + terrain.startPoint
-
+            
             if y < max {
                 y = max
             } else if y > min {
@@ -234,7 +255,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
             }
             
             let current = CGPoint(x: CGFloat(i), y: CGFloat(y))
-
+            
             let currentPoint = CGPoint(x: current.x, y: current.y + self.ellipseHeight)
             self.addGraphics(index: i, previousPoint: previousPoint, currentPoint: currentPoint)
             
@@ -246,6 +267,6 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         timer.fire()
         
     }
-
+    
 }
 
