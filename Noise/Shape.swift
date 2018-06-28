@@ -11,7 +11,7 @@ import MetalKit
 
 class Shape: Node {
     
-    init(device: MTLDevice, depth: Double, width: Double, scale: Double, terrain: Terrain) {
+    init(device: MTLDevice, depth: Double, width: Double, scale: Double, terrain: Terrain, mapScale:ClosedRange<Float>) {
         
         var verticesArray = [[Vertex]]()
 
@@ -28,7 +28,6 @@ class Shape: Node {
             var xOff:Double = 0
             
             for x in stride(from: 0.0, through: width, by: scale) {
-                let mapScale: ClosedRange<Float> = -5.0...5.0
                 
                 let floatX = Float(x)
                 let mappedX = Calculation.map(floatX, 0.0...Float(width), mapScale)

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Noise/ViewController.swift"
-            timestampString = "551737310.764166"
+            timestampString = "551894616.220341"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "248"
-            endingLineNumber = "248"
+            startingLineNumber = "271"
+            endingLineNumber = "271"
             landmarkName = "startOneDNoise(samples:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Noise/ViewController.swift"
-            timestampString = "551737310.764888"
+            timestampString = "551894616.221005"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "140"
-            endingLineNumber = "140"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
             landmarkName = "render(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Noise/Shape.swift"
-            timestampString = "551737310.765468"
+            timestampString = "551894616.2214741"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
-            landmarkName = "init(device:depth:width:scale:terrain:)"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "init(device:depth:width:scale:terrain:mapScale:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Noise/ViewController.swift"
-            timestampString = "551737310.7658809"
+            timestampString = "551894616.221843"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
             landmarkName = "run3DRender()"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Noise/ViewController.swift"
-            timestampString = "551737310.766121"
+            timestampString = "551894616.222072"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
+            startingLineNumber = "98"
+            endingLineNumber = "98"
             landmarkName = "run3DRender()"
             landmarkType = "7">
          </BreakpointContent>

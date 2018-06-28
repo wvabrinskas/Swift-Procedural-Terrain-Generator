@@ -41,6 +41,8 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     var projectionMatrix: float4x4!
     var worldModelMatrix = float4x4()
     
+    lazy var pan = UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:)))
+    
     lazy var mtkView: MTKView! =  {
         let metalView = MTKView(frame: self.graphLayer.frame)
         metalView.delegate = self
@@ -68,9 +70,11 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         
         mtkView.device = device
         
-        let terrain = Terrain(type: .Mountains, maxY: 1.0, cameraMax: 5.0)
+        
+        let mapScale:ClosedRange<Float> = -10.0...10.0
+        let terrain = Terrain(type: .Mountains, maxY: 1.0, cameraMax: Double(mapScale.upperBound))
 
-        objectToDraw = Shape(device: device, depth: 500.0, width: 1500.0, scale: 30.0, terrain: terrain)
+        objectToDraw = Shape(device: device, depth: 500.0, width: 500.0, scale: 30.0, terrain: terrain, mapScale: mapScale)
         
         let defaultLibrary = device.makeDefaultLibrary()!
         let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
@@ -88,41 +92,62 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         
         projectionMatrix = float4x4.makePerspectiveViewAngle(float4x4.degrees(toRad: 85.0),
                                                              aspectRatio: Float(graphLayer.bounds.size.width / graphLayer.bounds.size.height),
-                                                             nearZ: 0.0, farZ: 100.0)
+                                                             nearZ: 0.0, farZ: 4.0)
         
         worldModelMatrix.translate(0.0, y: -0.5, z: -5.1)
         worldModelMatrix.rotateAroundX(float4x4.degrees(toRad: 35), y: 0.0, z: 0.0)
         
-        mtkView.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:))))
-        mtkView.addGestureRecognizer(UIPinchGestureRecognizer.init(target: self, action: #selector(pinch(sender:))))
+        pan.maximumNumberOfTouches = 2
+        mtkView.addGestureRecognizer(pan)
+        
+        let pinch = UIPinchGestureRecognizer.init(target: self, action: #selector(pinch(sender:)))
+        mtkView.addGestureRecognizer(pinch)
 
         objectToDraw.positionZ = -2.15
-        objectToDraw.positionY += Float(-terrain.cameraStartPoint)
+        objectToDraw.positionY -= Float(terrain.cameraStartPoint)
         objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.5, direction: (1.0, Float(terrain.cameraStartPoint), -1.0), diffuseIntensity: 0.1)
     }
     
     @objc func pan(sender: UIPanGestureRecognizer) {
         let velocity = sender.velocity(in: mtkView)
         
-        if velocity.x > 0 {
-            objectToDraw.rotationY += 0.1
-        } else if velocity.x < 0 {
-            objectToDraw.rotationY -= 0.1
-        }
-        
-        if velocity.y > 0 {
-            objectToDraw.rotationX += 0.1
-        } else if velocity.y < 0 {
-            objectToDraw.rotationX -= 0.1
+        if sender.numberOfTouches == 2 {
+            if velocity.y > 0 {
+                objectToDraw.positionY -= 0.1
+            } else if velocity.y < 0 {
+                objectToDraw.positionY += 0.1
+            }
+            
+            if velocity.x > 0 {
+                objectToDraw.positionX -= 0.1
+            } else if velocity.x < 0 {
+                objectToDraw.positionX += 0.1
+            }
+            
+            
+        } else {
+            if velocity.x > 0 {
+                objectToDraw.rotationY += 0.1
+            } else if velocity.x < 0 {
+                objectToDraw.rotationY -= 0.1
+            }
+            
+            if velocity.y > 0 {
+                objectToDraw.rotationX += 0.1
+            } else if velocity.y < 0 {
+                objectToDraw.rotationX -= 0.1
+            }
         }
         
     }
     
     @objc func pinch(sender: UIPinchGestureRecognizer) {
-        if sender.scale > 1.0 {
-            objectToDraw.positionZ += 0.1
-        } else {
-            objectToDraw.positionZ -= 0.1
+        if pan.state != .began {
+            if sender.scale > 1.0 {
+                objectToDraw.positionZ += 0.3
+            } else {
+                objectToDraw.positionZ -= 0.3
+            }
         }
     }
     
@@ -136,9 +161,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     
     func render(_ drawable: CAMetalDrawable?) {
         guard let drawable = drawable else { return }
-        
         objectToDraw.render(commandQueue: commandQueue, pipelineState: pipelineState, drawable: drawable, parentModelViewMatrix: worldModelMatrix, projectionMatrix: projectionMatrix ,clearColor: nil)
-        
     }
     
     override func didReceiveMemoryWarning() {
