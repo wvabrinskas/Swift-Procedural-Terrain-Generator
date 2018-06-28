@@ -46,21 +46,39 @@ class Node {
         self.bufferProvider = BufferProvider(device: device, inflightBuffersCount: 3, sizeOfUniformsBuffer: sizeOfUniformsBuffer)
     }
     
+    func getHeaps() -> [MTLHeap] {
+        let descriptor = MTLHeapDescriptor()
+        descriptor.size = vertexBuffer.allocatedSize
+        descriptor.storageMode = .shared
+        
+        var heaps = [MTLHeap]()
+        let divisor = 20
+        
+        for _ in 1...divisor {
+            let heap = device.makeHeap(descriptor: descriptor)
+            heap?.makeBuffer(length: vertexBuffer.allocatedSize / divisor, options: .storageModeShared)
+            heaps.append(heap!)
+        }
+        
+        return heaps
+    }
+    
     func render(commandQueue: MTLCommandQueue, pipelineState: MTLRenderPipelineState, drawable: CAMetalDrawable, parentModelViewMatrix: float4x4, projectionMatrix: float4x4, clearColor: MTLClearColor?) {
         
         _ = bufferProvider.avaliableResourcesSemaphore.wait(timeout: DispatchTime.distantFuture)
         
         let renderPassDescriptor = MTLRenderPassDescriptor()
+        
         renderPassDescriptor.colorAttachments[0].texture = drawable.texture
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         
+        
         let commandBuffer = commandQueue.makeCommandBuffer()
         commandBuffer?.addCompletedHandler { (_) in
             self.bufferProvider.avaliableResourcesSemaphore.signal()
         }
-        
         
         let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         renderEncoder?.setCullMode(MTLCullMode.none)
@@ -72,6 +90,8 @@ class Node {
 
         let uniformBuffer = bufferProvider.nextUniformsBuffer(projectionMatrix: projectionMatrix, modelViewMatrix: nodeModelMatrix, light: light)
 
+        renderEncoder?.useHeaps(getHeaps())
+        
         renderEncoder?.setVertexBuffer(uniformBuffer, offset: 0, index: 1)
         renderEncoder?.setFragmentBuffer(uniformBuffer, offset: 0, index: 1)
         

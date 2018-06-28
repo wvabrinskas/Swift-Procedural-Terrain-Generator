@@ -74,7 +74,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         let mapScale:ClosedRange<Float> = -10.0...10.0
         let terrain = Terrain(type: .Mountains, maxY: 1.0, cameraMax: Double(mapScale.upperBound))
 
-        objectToDraw = Shape(device: device, depth: 500.0, width: 500.0, scale: 30.0, terrain: terrain, mapScale: mapScale)
+        objectToDraw = Shape(device: device, depth: 500.0, width: 500.0, scale: 10.0, terrain: terrain, mapScale: mapScale)
         
         let defaultLibrary = device.makeDefaultLibrary()!
         let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
@@ -84,6 +84,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         pipelineStateDescriptor.vertexFunction = vertexProgram
         pipelineStateDescriptor.fragmentFunction = fragmentProgram
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+
         //pipelineStateDescriptor.maxTessellationFactor = 64
         
         pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
