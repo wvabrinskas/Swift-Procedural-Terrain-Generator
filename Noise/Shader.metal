@@ -55,5 +55,4 @@ fragment float4 basic_fragment(VertexOut interpolated [[stage_in]], const device
     float4 diffuseColor = float4(light.color * light.diffuseIntensity * diffuseFactor ,1.0); // 2
     
     return interpolated.color * (ambientColor + diffuseColor);
-
 }

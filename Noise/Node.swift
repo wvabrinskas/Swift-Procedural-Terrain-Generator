@@ -92,7 +92,7 @@ class Node {
         renderEncoder?.setVertexBuffer(uniformBuffer, offset: 0, index: 1)
         renderEncoder?.setFragmentBuffer(uniformBuffer, offset: 0, index: 1)
         
-        renderEncoder?.setTriangleFillMode(.lines)
+        //renderEncoder?.setTriangleFillMode(.lines)
         
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexCount)
         renderEncoder?.endEncoding()

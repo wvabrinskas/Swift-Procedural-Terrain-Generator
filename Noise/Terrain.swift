@@ -84,15 +84,17 @@ class Terrain {
         let green = UIColor(red: 24.0/255.0, green: 169.0/255.0, blue: 59.0/255.0, alpha: 1.0)
         let brown = UIColor(red: 179.0/255.0, green: 114.0/255.0, blue: 25.0/255.0, alpha: 1.0)
         let gray = UIColor.lightGray
+        let darkGray = UIColor.lightGray
         let white = UIColor.white
         
         let terrainColors:[Double : UIColor] = [
             0.2 : white,
+            0.25 : darkGray,
             0.3 : gray,
             0.5 : brown,
             0.75: green,
             0.8 : sand,
-            0.9 : lightBlue,
+            0.85 : lightBlue,
             1.0 : deepBlue
         ]
         

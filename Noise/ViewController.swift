@@ -9,6 +9,7 @@
 import UIKit
 import MetalKit
 import QuartzCore
+import MetalPerformanceShaders
 
 class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     @IBOutlet weak var contentView: UIView!
@@ -40,6 +41,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
     var objectToDraw: Shape!
     var projectionMatrix: float4x4!
     var worldModelMatrix = float4x4()
+    
     
     lazy var pan = UIPanGestureRecognizer.init(target: self, action: #selector(pan(sender:)))
     
@@ -102,9 +104,13 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         let pinch = UIPinchGestureRecognizer.init(target: self, action: #selector(pinch(sender:)))
         mtkView.addGestureRecognizer(pinch)
 
-        objectToDraw.positionZ = -2.15
+        let t = MDLLight()
+        t.lightType = .ambient
+        
+        
+        objectToDraw.positionZ = (-mapScale.upperBound / 2.0) - 0.15
         objectToDraw.positionY -= Float(terrain.cameraStartPoint)
-        objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.2, direction: (1.0, Float(terrain.cameraStartPoint), -1.0), diffuseIntensity: 0.1)
+        objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.8, direction: (15, Float(terrain.cameraStartPoint), -1.0 * mapScale.upperBound / 2.0), diffuseIntensity: 0.005)
     }
     
     @objc func pan(sender: UIPanGestureRecognizer) {
