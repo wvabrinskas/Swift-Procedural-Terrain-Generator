@@ -20,7 +20,7 @@ class Shape: Node {
         noise.octaves = terrain.roughness
         
         var zOff:Double = 0
-        let inc = 0.05
+        let inc = 0.03
         
         var rowVerticies = [Vertex]()
         

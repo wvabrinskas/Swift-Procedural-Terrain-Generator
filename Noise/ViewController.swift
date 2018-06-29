@@ -71,10 +71,10 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         mtkView.device = device
         
         
-        let mapScale:ClosedRange<Float> = -10.0...10.0
-        let terrain = Terrain(type: .Mountains, maxY: 1.0, cameraMax: Double(mapScale.upperBound))
+        let mapScale:ClosedRange<Float> = -20.0...20.0
+        let terrain = Terrain(type: .Islands, maxY: 1.0, cameraMax: Double(mapScale.upperBound))
 
-        objectToDraw = Shape(device: device, depth: 500.0, width: 500.0, scale: 10.0, terrain: terrain, mapScale: mapScale)
+        objectToDraw = Shape(device: device, depth: 1500.0, width: 1500.0, scale: 10.0, terrain: terrain, mapScale: mapScale)
         
         let defaultLibrary = device.makeDefaultLibrary()!
         let fragmentProgram = defaultLibrary.makeFunction(name: "basic_fragment")
@@ -85,8 +85,6 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
         pipelineStateDescriptor.fragmentFunction = fragmentProgram
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
 
-        //pipelineStateDescriptor.maxTessellationFactor = 64
-        
         pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
         
         commandQueue = device.makeCommandQueue()
@@ -106,7 +104,7 @@ class ViewController: UIViewController, UITextFieldDelegate, MTKViewDelegate {
 
         objectToDraw.positionZ = -2.15
         objectToDraw.positionY -= Float(terrain.cameraStartPoint)
-        objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.5, direction: (1.0, Float(terrain.cameraStartPoint), -1.0), diffuseIntensity: 0.1)
+        objectToDraw.light = Light(color: (1.0,1.0,1.0), ambientIntensity: 0.2, direction: (1.0, Float(terrain.cameraStartPoint), -1.0), diffuseIntensity: 0.1)
     }
     
     @objc func pan(sender: UIPanGestureRecognizer) {

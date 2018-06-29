@@ -74,7 +74,6 @@ class Node {
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         
-        
         let commandBuffer = commandQueue.makeCommandBuffer()
         commandBuffer?.addCompletedHandler { (_) in
             self.bufferProvider.avaliableResourcesSemaphore.signal()
@@ -89,15 +88,13 @@ class Node {
         nodeModelMatrix.multiplyLeft(parentModelViewMatrix)
 
         let uniformBuffer = bufferProvider.nextUniformsBuffer(projectionMatrix: projectionMatrix, modelViewMatrix: nodeModelMatrix, light: light)
-
-        renderEncoder?.useHeaps(getHeaps())
         
         renderEncoder?.setVertexBuffer(uniformBuffer, offset: 0, index: 1)
         renderEncoder?.setFragmentBuffer(uniformBuffer, offset: 0, index: 1)
         
         renderEncoder?.setTriangleFillMode(.lines)
         
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexCount, instanceCount: vertexCount/2)
+        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexCount)
         renderEncoder?.endEncoding()
         
         commandBuffer?.present(drawable)
