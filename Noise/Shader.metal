@@ -43,6 +43,8 @@ vertex VertexOut basic_vertex(const device VertexIn* vertex_array [[ buffer(0) ]
     VertexOut VertexOut;
     VertexOut.position = proj_Matrix * mv_Matrix * float4(VertexIn.position,1);
     VertexOut.color = VertexIn.color;
+    
+    
     VertexOut.normal = (mv_Matrix * float4(VertexIn.normal, 0.0)).xyz;
     
     return VertexOut;
@@ -50,9 +52,9 @@ vertex VertexOut basic_vertex(const device VertexIn* vertex_array [[ buffer(0) ]
 
 fragment float4 basic_fragment(VertexOut interpolated [[stage_in]], const device Uniforms& uniforms [[ buffer(1) ]]) {
     Light light = uniforms.light;
-    float4 ambientColor = float4(light.color * light.ambientIntensity, 1);
+    float4 ambientColor = float4(light.color * light.ambientIntensity, 1) * 0.7;
     float diffuseFactor = max(0.0,dot(interpolated.normal, light.direction)); // 1
-    float4 diffuseColor = float4(light.color * light.diffuseIntensity * diffuseFactor ,1.0); // 2
+    float4 diffuseColor = float4(light.color * light.diffuseIntensity * diffuseFactor ,1.0) * 0.4; // 2
     
     return interpolated.color * (ambientColor + diffuseColor);
 }
